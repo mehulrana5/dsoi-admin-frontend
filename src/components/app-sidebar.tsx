@@ -14,7 +14,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { ModeToggle } from "./mode-toggle"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 import { useState } from "react"
 import { UserContext } from "@/context/UserContextProvider"
 
@@ -24,6 +24,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   // Always add new option at the end of the list else indexing will change 
   const options = [
+    {
+      title: "Home",
+      url: "/home",
+      isActive: false
+    },
     {
       title: "Admins",
       url: "/admins",
@@ -49,20 +54,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/logs",
       isActive: false
     },
-    {
-      title: "Home",
-      url: "/home",
-      isActive: false
-    },
   ]
 
   const optionsByRole: { [key: string]: { title: string; url: string; isActive: boolean }[] } = {
     "analyst": options,
     "superAdmin": options,
-    "customerService": [options[5],options[0], options[1], options[2]],
-    "bookKeeper": [options[5],options[1], options[3]],
-    "barTender": [options[5],]
+    "customerService": [options[0], options[1], options[2], options[3]],
+    "bookKeeper": [options[0], options[2], options[4]],
+    "barTender": [options[0]]
   }
+
+  const location = useLocation();
 
   const [data, setData] = useState({
     navMain: [
@@ -73,6 +75,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       }
     ],
   });
+
+  React.useEffect(() => {
+    setData(prevData => {
+      const newData = { ...prevData };
+      newData.navMain[0].items.forEach(e => {
+        e.isActive = e.url === location.pathname;
+      });
+      return newData;
+    });
+  }, [location.pathname]);
 
   function handleClick(idx: number) {
     setData(prevData => {

@@ -1,25 +1,18 @@
+"use client"
 import { UserContext } from "@/context/UserContextProvider"
 import { useContext, useEffect, useState } from "react"
-// import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-
-"use client"
-import * as React from "react"
 import {
     ColumnDef,
-    ColumnFiltersState,
     SortingState,
     VisibilityState,
     flexRender,
     getCoreRowModel,
-    getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
@@ -37,53 +30,40 @@ import {
     TableRow,
 } from "@/components/ui/table"
 
-
 function AdminsPage() {
     const context = useContext(UserContext)
-
-    // const [filters, setFilters] = useState({ type: "", query: "" })
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
 
     function handleUpdate(id: string) {
-        console.log(`update ${id}`);
+        console.log(`update ${id}`)
     }
 
     function handleDelete(id: string) {
-        console.log(`delete ${id}`);
+        console.log(`delete ${id}`)
     }
 
     useEffect(() => {
         if (!context?.adminsData.length) {
             context?.getAdmins("", "")
         }
-    }, [])
+    }, [context])
 
     useEffect(() => {
         const handleResize = () => {
-            if (window.innerWidth <= 768) {
-                setColumnVisibility({
-                    type: true,
-                    userName: true,
-                    lastActive: false,
-                    createdAt: false,
-                    actions: false,
-                });
-            } else {
-                setColumnVisibility({
-                    type: true,
-                    userName: true,
-                    lastActive: true,
-                    createdAt: true,
-                    actions: true,
-                });
-            }
-        };
+            setColumnVisibility({
+                type: true,
+                userName: true,
+                lastActive: window.innerWidth > 768,
+                createdAt: window.innerWidth > 768,
+                actions: window.innerWidth > 768,
+            })
+        }
 
-        window.addEventListener("resize", handleResize);
-        handleResize(); // Set initial state
+        window.addEventListener("resize", handleResize)
+        handleResize()
 
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
+        return () => window.removeEventListener("resize", handleResize)
+    }, [])
 
     const data: Payment[] = context?.adminsData ?? []
 
@@ -97,78 +77,60 @@ function AdminsPage() {
 
     const columns: ColumnDef<Payment>[] = [
         {
-            id: "select",
-            header: ({ table }) => (
-                <Checkbox
-                    checked={
-                        table.getIsAllPageRowsSelected() ||
-                        (table.getIsSomePageRowsSelected() && "indeterminate")
-                    }
-                    onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                    aria-label="Select all"
-                />
-            ),
-            cell: ({ row }) => (
-                <Checkbox
-                    checked={row.getIsSelected()}
-                    onCheckedChange={(value) => row.toggleSelected(!!value)}
-                    aria-label="Select row"
-                />
-            ),
-            enableSorting: false,
-            enableHiding: false,
-        },
-        {
             accessorKey: "type",
-            header: "Type",
-            cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("type")}</div>
+            header: ({ column }) => (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    User Type
+                    <ArrowUpDown />
+                </Button>
             ),
+            cell: ({ row }) => <div className="lowercase">{row.getValue("type")}</div>,
         },
         {
             accessorKey: "userName",
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        User Name
-                        <ArrowUpDown />
-                    </Button>
-                )
-            },
+            header: ({ column }) => (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    User Name
+                    <ArrowUpDown />
+                </Button>
+            ),
             cell: ({ row }) => <div className="lowercase">{row.getValue("userName")}</div>,
         },
         {
             accessorKey: "lastActive",
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        Last Active
-                        <ArrowUpDown />
-                    </Button>
-                )
-            },
-            cell: ({ row }) => <div>{row.getValue("lastActive") ? new Date(row.getValue("lastActive")).toLocaleString() : "N/A"}</div>,
+            header: ({ column }) => (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Last Active
+                    <ArrowUpDown />
+                </Button>
+            ),
+            cell: ({ row }) => (
+                <div>{row.getValue("lastActive") ? new Date(row.getValue("lastActive")).toLocaleString() : "N/A"}</div>
+            ),
         },
         {
             accessorKey: "createdAt",
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        Created At
-                        <ArrowUpDown />
-                    </Button>
-                )
-            },
-            cell: ({ row }) => <div>{row.getValue("createdAt") ? new Date(row.getValue("createdAt")).toLocaleDateString() : "N/A"}</div>,
+            header: ({ column }) => (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Created At
+                    <ArrowUpDown />
+                </Button>
+            ),
+            cell: ({ row }) => (
+                <div>{row.getValue("createdAt") ? new Date(row.getValue("createdAt")).toLocaleDateString() : "N/A"}</div>
+            ),
         },
         {
             id: "actions",
@@ -194,24 +156,20 @@ function AdminsPage() {
     ]
 
     function DataTable() {
-        const [sorting, setSorting] = React.useState<SortingState>([])
-        const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-        const [rowSelection, setRowSelection] = React.useState({})
+        const [sorting, setSorting] = useState<SortingState>([])
+        const [rowSelection, setRowSelection] = useState({})
 
         const table = useReactTable({
             data,
             columns,
             onSortingChange: setSorting,
-            onColumnFiltersChange: setColumnFilters,
             getCoreRowModel: getCoreRowModel(),
             getPaginationRowModel: getPaginationRowModel(),
             getSortedRowModel: getSortedRowModel(),
-            getFilteredRowModel: getFilteredRowModel(),
             onColumnVisibilityChange: setColumnVisibility,
             onRowSelectionChange: setRowSelection,
             state: {
                 sorting,
-                columnFilters,
                 columnVisibility,
                 rowSelection,
             },
@@ -238,20 +196,18 @@ function AdminsPage() {
                             {table
                                 .getAllColumns()
                                 .filter((column) => column.getCanHide())
-                                .map((column) => {
-                                    return (
-                                        <DropdownMenuCheckboxItem
-                                            key={column.id}
-                                            className="capitalize"
-                                            checked={column.getIsVisible()}
-                                            onCheckedChange={(value) =>
-                                                column.toggleVisibility(!!value)
-                                            }
-                                        >
-                                            {column.id}
-                                        </DropdownMenuCheckboxItem>
-                                    )
-                                })}
+                                .map((column) => (
+                                    <DropdownMenuCheckboxItem
+                                        key={column.id}
+                                        className="capitalize"
+                                        checked={column.getIsVisible()}
+                                        onCheckedChange={(value) =>
+                                            column.toggleVisibility(!!value)
+                                        }
+                                    >
+                                        {column.id}
+                                    </DropdownMenuCheckboxItem>
+                                ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -260,18 +216,16 @@ function AdminsPage() {
                         <TableHeader>
                             {table.getHeaderGroups().map((headerGroup) => (
                                 <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => {
-                                        return (
-                                            <TableHead key={header.id} className="text-center">
-                                                {header.isPlaceholder
-                                                    ? null
-                                                    : flexRender(
-                                                        header.column.columnDef.header,
-                                                        header.getContext()
-                                                    )}
-                                            </TableHead>
-                                        )
-                                    })}
+                                    {headerGroup.headers.map((header) => (
+                                        <TableHead key={header.id} className="text-center">
+                                            {header.isPlaceholder
+                                                ? null
+                                                : flexRender(
+                                                    header.column.columnDef.header,
+                                                    header.getContext()
+                                                )}
+                                        </TableHead>
+                                    ))}
                                 </TableRow>
                             ))}
                         </TableHeader>
@@ -306,28 +260,22 @@ function AdminsPage() {
                     </Table>
                 </div>
                 <div className="flex items-center justify-end space-x-2 py-4">
-                    <div className="flex-1 text-sm text-muted-foreground">
-                        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                        {table.getFilteredRowModel().rows.length} row(s) selected.
-                    </div>
-                    <div className="space-x-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => table.previousPage()}
-                            disabled={!table.getCanPreviousPage()}
-                        >
-                            Previous
-                        </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => table.nextPage()}
-                            disabled={!table.getCanNextPage()}
-                        >
-                            Next
-                        </Button>
-                    </div>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                    >
+                        Next
+                    </Button>
                 </div>
             </div>
         )
