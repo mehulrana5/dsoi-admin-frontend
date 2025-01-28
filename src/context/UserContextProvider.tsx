@@ -10,6 +10,8 @@ interface UserContextType {
     getAdmins: (type: string, query: string) => Promise<void>;
     adminsData: any[];
     BASE_URL: String;
+    fontSize: string;
+    setFontSize: (size: string) => void;
 }
 
 // Create the UserContext
@@ -24,6 +26,7 @@ interface UserContextProviderProps {
 const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     const [loading, setLoading] = useState<string>("");
     const [adminsData, setAdminsData] = useState<any[]>([]);
+    const [fontSize, setFontSize] = useState<string>("base");
     const navigate = useNavigate();
 
     console.log(`BASE URL ${BASE_URL}`);
@@ -107,7 +110,9 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             logout,
             getAdmins,
             adminsData,
-            BASE_URL
+            BASE_URL,
+            fontSize,
+            setFontSize
         }}>
             {children}
         </UserContext.Provider>

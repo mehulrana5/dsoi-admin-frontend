@@ -104,12 +104,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         {data.navMain.map((item) => (
           <SidebarGroup key={item.title}>
-            <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
                 {item.items.map((item, idx) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild isActive={item.isActive}>
+                    <SidebarMenuButton className={`text-${context?.fontSize}`} asChild isActive={item.isActive}>
                       <Link to={item.url} onClick={() => handleClick(idx)}>{item.title}</Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -121,7 +120,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter>
         <SidebarContent>
-          <SidebarMenuButton onClick={() => context?.logout()}>Logout</SidebarMenuButton>
+          <SidebarMenuButton className={`text-${context?.fontSize}`} onClick={() => context?.logout()}>Logout</SidebarMenuButton>
         </SidebarContent>
       </SidebarFooter>
       <SidebarRail />

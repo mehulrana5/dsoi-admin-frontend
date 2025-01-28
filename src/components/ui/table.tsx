@@ -1,6 +1,7 @@
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
+import { UserContext } from "@/context/UserContextProvider"
 
 const Table = React.forwardRef<
   HTMLTableElement,
@@ -54,17 +55,20 @@ TableFooter.displayName = "TableFooter"
 const TableRow = React.forwardRef<
   HTMLTableRowElement,
   React.HTMLAttributes<HTMLTableRowElement>
->(({ className, ...props }, ref) => (
-  <tr
-    ref={ref}
-    className={cn(
-      "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
-      className
-    )}
-    {...props}
-  />
-))
-TableRow.displayName = "TableRow"
+>(({ className, ...props }, ref) => {
+  const context = React.useContext(UserContext);
+  return (
+    <tr
+      ref={ref}
+      className={cn(
+        `border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted text-${context?.fontSize}`,
+        className
+      )}
+      {...props}
+    />
+  );
+});
+TableRow.displayName = "TableRow";
 
 const TableHead = React.forwardRef<
   HTMLTableCellElement,
