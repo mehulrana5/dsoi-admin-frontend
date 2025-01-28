@@ -7,6 +7,8 @@ interface UserContextType {
     loading: string;
     login: (credentials: { username: string; password: string }) => Promise<void>;
     logout: () => void;
+    getAdmins: (type: string, query: string) => Promise<void>;
+    adminsData: any[];
     BASE_URL: String;
 }
 
@@ -21,6 +23,7 @@ interface UserContextProviderProps {
 // UserContextProvider component
 const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     const [loading, setLoading] = useState<string>("");
+    const [adminsData, setAdminsData] = useState<any[]>([]);
     const navigate = useNavigate();
 
     console.log(`BASE URL ${BASE_URL}`);
@@ -54,7 +57,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             localStorage.setItem("userName", data.admin.userName);
             localStorage.setItem("token", `Berear ${data.token}`);
             localStorage.setItem("userType", data.admin.type);
-            navigate('/admins');
+            navigate('/home');
         } catch (error) {
             console.error('Login error:', error);
             alert('Login failed. Please try again.');
@@ -71,11 +74,39 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         navigate('/');
     };
 
+    const getAdmins = async (type: string, query: string) => {
+        setLoading("getAdmins");
+        try {
+            const res = await fetch(`${BASE_URL}/getAdmins`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ type, query })
+            });
+            if (res.status === 401) {
+                logout();
+                return;
+            }
+            const data = await res.json();
+            if (data.error) {
+                alert(data.error.message);
+                return;
+            }
+            setAdminsData(data);
+        } catch (error) {
+            console.error('Get admins error:', error);
+            alert('Failed to fetch admins. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
     return (
         <UserContext.Provider value={{
             loading,
             login,
             logout,
+            getAdmins,
+            adminsData,
             BASE_URL
         }}>
             {children}

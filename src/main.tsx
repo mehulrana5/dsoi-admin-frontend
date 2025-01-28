@@ -10,6 +10,7 @@ import MembersPages from './pages/MembersPages.tsx';
 import FamiliesPage from './pages/FamiliesPage.tsx';
 import LogsPage from './pages/LogsPage.tsx';
 import OrdersPage from './pages/OrdersPage.tsx';
+import HomePage from './pages/HomePage.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -18,6 +19,7 @@ createRoot(document.getElementById('root')!).render(
         <Routes>
           <Route path='/' element={<LoginForm />} />
           <Route element={<Dashboard />}>
+            <Route path='/home' element={<HomePage />} />
             <Route path='/admins' element={<AdminsPage />} />
             <Route path='/members' element={<MembersPages />} />
             <Route path='/families' element={<FamiliesPage />} />

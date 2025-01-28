@@ -22,6 +22,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const context = React.useContext(UserContext)
 
+  // Always add new option at the end of the list else indexing will change 
   const options = [
     {
       title: "Admins",
@@ -48,14 +49,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       url: "/logs",
       isActive: false
     },
+    {
+      title: "Home",
+      url: "/home",
+      isActive: false
+    },
   ]
 
   const optionsByRole: { [key: string]: { title: string; url: string; isActive: boolean }[] } = {
     "analyst": options,
     "superAdmin": options,
-    "customerService": [options[0], options[1], options[2]],
-    "bookKeeper": [options[1], options[3]],
-    "barTender": []
+    "customerService": [options[5],options[0], options[1], options[2]],
+    "bookKeeper": [options[5],options[1], options[3]],
+    "barTender": [options[5],]
   }
 
   const [data, setData] = useState({
