@@ -9,7 +9,7 @@ import { UserContext } from "@/context/UserContextProvider"
 import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
 import { useContext, useEffect, useState } from "react"
-import Myform from "./Myform"
+import MemberForm from "./MemberForm"
 
 function MembersPages() {
 
@@ -267,7 +267,7 @@ function MembersPages() {
                 <DialogTitle></DialogTitle>
                 <DialogDescription></DialogDescription>
               </DialogHeader>
-              <Myform />
+              <MemberForm />
             </DialogContent>
           </Dialog>
           <DropdownMenu>

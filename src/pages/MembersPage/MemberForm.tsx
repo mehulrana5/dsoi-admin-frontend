@@ -46,7 +46,7 @@ const formSchema = z.object({
     photo: z.string()
 });
 
-export default function MyForm() {
+export default function MemberForm() {
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
