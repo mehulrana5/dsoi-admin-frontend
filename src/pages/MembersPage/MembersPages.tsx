@@ -9,6 +9,7 @@ import { UserContext } from "@/context/UserContextProvider"
 import { ColumnDef, flexRender, getCoreRowModel, getFilteredRowModel, getPaginationRowModel, getSortedRowModel, SortingState, useReactTable, VisibilityState } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
 import { useContext, useEffect, useState } from "react"
+import Myform from "./Myform"
 
 function MembersPages() {
 
@@ -25,12 +26,12 @@ function MembersPages() {
         userName: true,
         rank: true,
         actions: true,
+        photo: true,
         wallet: (context?.screenSize ?? 0) > 768,
         pendingDate: (context?.screenSize ?? 0) > 768,
         contact: (context?.screenSize ?? 0) > 768,
         _id: false,
         email: false,
-        photo: false,
         createdAt: false,
         lastActive: false,
       })
@@ -70,6 +71,18 @@ function MembersPages() {
 
   const columns: ColumnDef<Members>[] = [
     {
+      id: "photo",
+      cell: ({ row }) => {
+        return (
+          <img
+            src={row.original.photo}
+            alt="User Photo"
+            className="w-[30px] h-[30px] rounded-full object-center sm:w-[150px] sm:h-[150px] sm:rounded-none"
+          />
+        )
+      }
+    },
+    {
       accessorKey: "userName",
       header: ({ column }) => (
         <Button
@@ -89,50 +102,49 @@ function MembersPages() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle></DialogTitle>
+              <DialogTitle>User Profile</DialogTitle>
               <DialogDescription></DialogDescription>
             </DialogHeader>
             {
               selectedRow === -1 ? <></> :
-                <Card className="overflow-y-auto max-h-[70vh] sm:max-h-[80vh] flex flex-col justify-center items-center">
-                  <img src={context?.membersData[selectedRow].photo} alt="User Photo" className="w-[300px]" />
+                <Card>
                   <CardContent className="grid grid-cols-12 gap-4">
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>ID</Label>
-                    <Input readOnly value={context?.membersData[selectedRow]._id} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Name</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].userName} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Contact</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].contact} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Email</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].email} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Pending Date</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].pendingDate ? new Date(context?.membersData[selectedRow].pendingDate).toLocaleDateString() : "N/A"} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Wallet</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].wallet.toString()} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Rank</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].rank} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Created At</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].createdAt ? new Date(context?.membersData[selectedRow].createdAt).toLocaleDateString() : "N/A"} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Last Active</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].lastActive ? new Date(context?.membersData[selectedRow].lastActive).toLocaleDateString() : "N/A"} />
-                  </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>ID</Label>
+                      <Input readOnly value={context?.membersData[selectedRow]._id} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Name</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].userName} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Contact</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].contact} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Email</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].email} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Pending Date</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].pendingDate ? new Date(context?.membersData[selectedRow].pendingDate).toLocaleDateString() : "N/A"} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Wallet</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].wallet.toString()} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Rank</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].rank} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Created At</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].createdAt ? new Date(context?.membersData[selectedRow].createdAt).toLocaleDateString() : "N/A"} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Last Active</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].lastActive ? new Date(context?.membersData[selectedRow].lastActive).toLocaleDateString() : "N/A"} />
+                    </div>
                   </CardContent>
                 </Card>
             }
@@ -237,7 +249,7 @@ function MembersPages() {
 
     return (
       <div className="w-full">
-        <div className="flex items-center py-4">
+        <div className="flex items-center py-4 flex-wrap gap-2">
           <Input
             placeholder="Filter user names..."
             value={(table.getColumn("userName")?.getFilterValue() as string) ?? ""}
@@ -246,6 +258,18 @@ function MembersPages() {
             }
             className="max-w-sm"
           />
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>Add member</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle></DialogTitle>
+                <DialogDescription></DialogDescription>
+              </DialogHeader>
+              <Myform />
+            </DialogContent>
+          </Dialog>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
