@@ -12,6 +12,8 @@ interface UserContextType {
     BASE_URL: String;
     fontSize: string;
     setFontSize: (size: string) => void;
+    getMembers: (type: string, query: string) => Promise<void>;
+    membersData: any[];
 }
 
 // Create the UserContext
@@ -26,7 +28,8 @@ interface UserContextProviderProps {
 const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     const [loading, setLoading] = useState<string>("");
     const [adminsData, setAdminsData] = useState<any[]>([]);
-    const [fontSize, setFontSize] = useState<string>("base");
+    const [fontSize, setFontSize] = useState<string>("sm");
+    const [membersData, setMembersData] = useState<any[]>([]);
     const navigate = useNavigate();
 
     console.log(`BASE URL ${BASE_URL}`);
@@ -103,6 +106,32 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
+    const getMembers = async (type: string, query: string) => {
+        setLoading("getMembers");
+        try {
+            const res = await fetch(`${BASE_URL}/getMembers`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ type, query })
+            });
+            if (res.status === 401) {
+                logout();
+                return;
+            }
+            const data = await res.json();
+            if (data.error) {
+                alert(data.error.message);
+                return;
+            }
+            setMembersData(data);
+        } catch (error) {
+            console.error('Get members error:', error);
+            alert('Failed to fetch members. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
     return (
         <UserContext.Provider value={{
             loading,
@@ -112,7 +141,9 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             adminsData,
             BASE_URL,
             fontSize,
-            setFontSize
+            setFontSize,
+            getMembers,
+            membersData
         }}>
             {children}
         </UserContext.Provider>

@@ -10,6 +10,7 @@ import {
     getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
+    getFilteredRowModel,
 } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -101,6 +102,7 @@ function AdminsPage() {
                 </Button>
             ),
             cell: ({ row }) => <div className="lowercase">{row.getValue("userName")}</div>,
+            filterFn: 'includesString',
         },
         {
             accessorKey: "lastActive",
@@ -166,6 +168,7 @@ function AdminsPage() {
             getCoreRowModel: getCoreRowModel(),
             getPaginationRowModel: getPaginationRowModel(),
             getSortedRowModel: getSortedRowModel(),
+            getFilteredRowModel: getFilteredRowModel(),
             onColumnVisibilityChange: setColumnVisibility,
             onRowSelectionChange: setRowSelection,
             state: {
