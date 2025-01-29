@@ -25,10 +25,10 @@ function MembersPages() {
         userName: true,
         rank: true,
         actions: true,
+        photo: true,
         wallet: (context?.screenSize ?? 0) > 768,
         pendingDate: (context?.screenSize ?? 0) > 768,
         contact: (context?.screenSize ?? 0) > 768,
-        photo: (context?.screenSize ?? 0) > 768,
         _id: false,
         email: false,
         createdAt: false,
@@ -74,7 +74,11 @@ function MembersPages() {
       cell: ({ row }) => {
         console.log(row.original.photo);
         return (
-          <img src={row.original.photo} alt="User Photo" className="w-[150px] h-[150px] object-center" />
+          <img 
+            src={row.original.photo} 
+            alt="User Photo" 
+            className="w-[30px] h-[30px] rounded-full object-center sm:w-[150px] sm:h-[150px] sm:rounded-none" 
+          />
         )
       }
     },
