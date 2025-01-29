@@ -1,4 +1,4 @@
-import { createContext, useState, ReactNode, FC } from 'react';
+import { createContext, useState, useEffect, ReactNode, FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 const BASE_URL = import.meta.env.VITE_BASE_URL || 'https://dsoi-backend.onrender.com/api';
 
@@ -14,6 +14,7 @@ interface UserContextType {
     setFontSize: (size: string) => void;
     getMembers: (type: string, query: string) => Promise<void>;
     membersData: any[];
+    screenSize: number;
 }
 
 // Create the UserContext
@@ -30,7 +31,14 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     const [adminsData, setAdminsData] = useState<any[]>([]);
     const [fontSize, setFontSize] = useState<string>("sm");
     const [membersData, setMembersData] = useState<any[]>([]);
+    const [screenSize, setScreenSize] = useState<number>(window.innerWidth);
     const navigate = useNavigate();
+    
+    useEffect(() => {
+        const handleResize = () => setScreenSize(window.innerWidth);
+        return () => window.removeEventListener('resize', handleResize);
+        window.addEventListener('resize', handleResize);
+    }, []);
 
     console.log(`BASE URL ${BASE_URL}`);
 
@@ -143,7 +151,8 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             fontSize,
             setFontSize,
             getMembers,
-            membersData
+            membersData,
+            screenSize,
         }}>
             {children}
         </UserContext.Provider>

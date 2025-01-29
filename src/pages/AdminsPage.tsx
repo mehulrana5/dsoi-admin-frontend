@@ -47,16 +47,14 @@ function AdminsPage() {
         if (!context?.adminsData.length) {
             context?.getAdmins("", "")
         }
-    }, [context])
 
-    useEffect(() => {
         const handleResize = () => {
             setColumnVisibility({
                 type: true,
                 userName: true,
-                lastActive: window.innerWidth > 768,
-                createdAt: window.innerWidth > 768,
-                actions: window.innerWidth > 768,
+                lastActive: (context?.screenSize ?? 0) > 768,
+                createdAt: (context?.screenSize ?? 0) > 768,
+                actions: true,
             })
         }
 
@@ -78,19 +76,6 @@ function AdminsPage() {
 
     const columns: ColumnDef<Payment>[] = [
         {
-            accessorKey: "type",
-            header: ({ column }) => (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    User Type
-                    <ArrowUpDown />
-                </Button>
-            ),
-            cell: ({ row }) => <div className="lowercase">{row.getValue("type")}</div>,
-        },
-        {
             accessorKey: "userName",
             header: ({ column }) => (
                 <Button
@@ -103,6 +88,19 @@ function AdminsPage() {
             ),
             cell: ({ row }) => <div className="lowercase">{row.getValue("userName")}</div>,
             filterFn: 'includesString',
+        },
+        {
+            accessorKey: "type",
+            header: ({ column }) => (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    User Type
+                    <ArrowUpDown />
+                </Button>
+            ),
+            cell: ({ row }) => <div className="lowercase">{row.getValue("type")}</div>,
         },
         {
             accessorKey: "lastActive",
