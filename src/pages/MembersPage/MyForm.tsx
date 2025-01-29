@@ -209,7 +209,7 @@ export default function MyForm() {
                                 <FormItem>
                                     <FormLabel>Password</FormLabel>
                                     <FormControl>
-                                        <PasswordInput placeholder="password" {...field} />
+                                        <PasswordInput {...field} />
                                     </FormControl>
 
                                     <FormMessage />
@@ -228,7 +228,7 @@ export default function MyForm() {
                                 <FormItem>
                                     <FormLabel>Confirm Password</FormLabel>
                                     <FormControl>
-                                        <PasswordInput placeholder="Placeholder" {...field} />
+                                        <PasswordInput {...field} />
                                     </FormControl>
 
                                     <FormMessage />
