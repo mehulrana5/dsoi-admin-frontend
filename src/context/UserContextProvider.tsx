@@ -15,6 +15,7 @@ interface UserContextType {
     getMembers: (type: string, query: string) => Promise<void>;
     membersData: any[];
     screenSize: number;
+    totalMembers: number;
 }
 
 // Create the UserContext
@@ -32,12 +33,13 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     const [fontSize, setFontSize] = useState<string>("sm");
     const [membersData, setMembersData] = useState<any[]>([]);
     const [screenSize, setScreenSize] = useState<number>(window.innerWidth);
+    const [totalMembers, setTotalMembers] = useState<number>(0);
     const navigate = useNavigate();
     
     useEffect(() => {
         const handleResize = () => setScreenSize(window.innerWidth);
-        return () => window.removeEventListener('resize', handleResize);
         window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
 
     console.log(`BASE URL ${BASE_URL}`);
@@ -131,7 +133,8 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
                 alert(data.error.message);
                 return;
             }
-            setMembersData(data);
+            setMembersData(data.data);
+            setTotalMembers(data.count);
         } catch (error) {
             console.error('Get members error:', error);
             alert('Failed to fetch members. Please try again.');
@@ -153,6 +156,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             getMembers,
             membersData,
             screenSize,
+            totalMembers,
         }}>
             {children}
         </UserContext.Provider>
