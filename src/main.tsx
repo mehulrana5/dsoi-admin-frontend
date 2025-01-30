@@ -5,7 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import UserContextProvider from './context/UserContextProvider.tsx';
 import LoginForm from './pages/LoginPage.tsx';
 import Dashboard from './pages/Layout.tsx';
-import AdminsPage from './pages/AdminsPage.tsx';
+import AdminsPage from './pages/AdminsPage/AdminsPage.tsx';
 import MembersPages from './pages/MembersPage/MembersPages.tsx';
 import FamiliesPage from './pages/FamiliesPage.tsx';
 import LogsPage from './pages/LogsPage.tsx';
