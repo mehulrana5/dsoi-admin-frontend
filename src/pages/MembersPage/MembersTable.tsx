@@ -34,6 +34,8 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { UserContext } from "@/context/UserContextProvider"
+import MemberForm from "./MemberForm"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
 export function MembersTable() {
 
@@ -41,7 +43,7 @@ export function MembersTable() {
 
     React.useEffect(() => {
         if (!context?.membersData.length) {
-            context?.getMembers("", "")
+            context?.getMembers("", "", 0, 10)
         }
         setColumnVisibility({
             userName: true,
@@ -231,7 +233,7 @@ export function MembersTable() {
 
     return (
         <div className="w-full">
-            <div className="flex items-center py-4">
+            <div className="flex flex-wrap gap-2 items-center py-4">
                 <Input
                     placeholder="Filter emails..."
                     value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
@@ -240,6 +242,18 @@ export function MembersTable() {
                     }
                     className="max-w-sm"
                 />
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button>Add Member</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Title</DialogTitle>
+                            <DialogDescription>Description</DialogDescription>
+                        </DialogHeader>
+                        <MemberForm />
+                    </DialogContent>
+                </Dialog>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">

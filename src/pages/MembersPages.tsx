@@ -18,7 +18,7 @@ function MembersPages() {
 
   useEffect(() => {
     if (!context?.membersData.length) {
-      context?.getMembers("", "")
+      context?.getMembers("", "", 0, 10)
     }
     const handleResize = () => {
       setColumnVisibility({
@@ -97,42 +97,42 @@ function MembersPages() {
                 <Card className="overflow-y-auto max-h-[70vh] sm:max-h-[80vh] flex flex-col justify-center items-center">
                   <img src={context?.membersData[selectedRow].photo} alt="User Photo" className="w-[300px]" />
                   <CardContent className="grid grid-cols-12 gap-4">
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>ID</Label>
-                    <Input readOnly value={context?.membersData[selectedRow]._id} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Name</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].userName} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Contact</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].contact} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Email</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].email} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Pending Date</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].pendingDate ? new Date(context?.membersData[selectedRow].pendingDate).toLocaleDateString() : "N/A"} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Wallet</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].wallet.toString()} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Rank</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].rank} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Created At</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].createdAt ? new Date(context?.membersData[selectedRow].createdAt).toLocaleDateString() : "N/A"} />
-                  </div>
-                  <div className="col-span-6 sm:col-span-6">
-                    <Label>Last Active</Label>
-                    <Input readOnly value={context?.membersData[selectedRow].lastActive ? new Date(context?.membersData[selectedRow].lastActive).toLocaleDateString() : "N/A"} />
-                  </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>ID</Label>
+                      <Input readOnly value={context?.membersData[selectedRow]._id} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Name</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].userName} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Contact</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].contact} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Email</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].email} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Pending Date</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].pendingDate ? new Date(context?.membersData[selectedRow].pendingDate).toLocaleDateString() : "N/A"} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Wallet</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].wallet.toString()} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Rank</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].rank} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Created At</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].createdAt ? new Date(context?.membersData[selectedRow].createdAt).toLocaleDateString() : "N/A"} />
+                    </div>
+                    <div className="col-span-6 sm:col-span-6">
+                      <Label>Last Active</Label>
+                      <Input readOnly value={context?.membersData[selectedRow].lastActive ? new Date(context?.membersData[selectedRow].lastActive).toLocaleDateString() : "N/A"} />
+                    </div>
                   </CardContent>
                 </Card>
             }

@@ -12,10 +12,12 @@ interface UserContextType {
     BASE_URL: String;
     fontSize: string;
     setFontSize: (size: string) => void;
-    getMembers: (type: string, query: string) => Promise<void>;
+    getMembers: (type: string, query: string, skip: number, limit: number) => Promise<void>;
     membersData: any[];
     screenSize: number;
     totalMembers: number;
+    ordersData: any[];
+    getOrders: (type: string, query: string) => Promise<void>;
 }
 
 // Create the UserContext
@@ -34,8 +36,9 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     const [membersData, setMembersData] = useState<any[]>([]);
     const [screenSize, setScreenSize] = useState<number>(window.innerWidth);
     const [totalMembers, setTotalMembers] = useState<number>(0);
+    const [ordersData, setOrdersData] = useState<any[]>([]);
     const navigate = useNavigate();
-    
+
     useEffect(() => {
         const handleResize = () => setScreenSize(window.innerWidth);
         window.addEventListener('resize', handleResize);
@@ -116,10 +119,38 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
-    const getMembers = async (type: string, query: string) => {
+    const getMembers = async (type: string, query: string, skip: number, limit: number) => {
         setLoading("getMembers");
         try {
             const res = await fetch(`${BASE_URL}/getMembers`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ type, query, skip, limit })
+            });
+            if (res.status === 401) {
+                logout();
+                return;
+            }
+            const data = await res.json();
+            if (data.error) {
+                alert(data.error.message);
+                return;
+            }
+            setMembersData(data.data);
+            setTotalMembers(data.count);
+            return data;
+        } catch (error) {
+            console.error('Get members error:', error);
+            alert('Failed to fetch members. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
+    const getOrders = async (type: string, query: string) => {
+        setLoading("getOrders");
+        try {
+            const res = await fetch(`${BASE_URL}/getOrders`, {
                 method: 'POST',
                 headers: getHeaders(),
                 body: JSON.stringify({ type, query })
@@ -133,11 +164,10 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
                 alert(data.error.message);
                 return;
             }
-            setMembersData(data.data);
-            setTotalMembers(data.count);
+            setOrdersData(data.data);
         } catch (error) {
-            console.error('Get members error:', error);
-            alert('Failed to fetch members. Please try again.');
+            console.error('Get orders error:', error);
+            alert('Failed to fetch orders. Please try again.');
         } finally {
             setLoading("");
         }
@@ -157,6 +187,8 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             membersData,
             screenSize,
             totalMembers,
+            ordersData,
+            getOrders,
         }}>
             {children}
         </UserContext.Provider>

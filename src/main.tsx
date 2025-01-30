@@ -9,7 +9,7 @@ import AdminsPage from './pages/AdminsPage/AdminsPage.tsx';
 import MembersPages from './pages/MembersPage/MembersPages.tsx';
 import FamiliesPage from './pages/FamiliesPage.tsx';
 import LogsPage from './pages/LogsPage.tsx';
-import OrdersPage from './pages/OrdersPage.tsx';
+import OrdersPage from './pages/OrdersPage/OrdersPage.tsx';
 import HomePage from './pages/HomePage.tsx';
 
 createRoot(document.getElementById('root')!).render(
