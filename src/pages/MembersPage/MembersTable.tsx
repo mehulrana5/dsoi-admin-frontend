@@ -1,4 +1,5 @@
 "use client"
+
 import * as React from "react"
 import {
     ColumnDef,
@@ -13,6 +14,7 @@ import {
     useReactTable,
 } from "@tanstack/react-table"
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import {
     DropdownMenu,
@@ -31,31 +33,29 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import AdminForm from "./AdminForm"
 import { UserContext } from "@/context/UserContextProvider"
 
-export function AdminTable() {
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
-    const [rowSelection, setRowSelection] = React.useState({})
+export function MembersTable() {
 
     const context = React.useContext(UserContext)
 
     React.useEffect(() => {
-        if (!context?.adminsData.length) {
-            context?.getAdmins("", "")
+        if (!context?.membersData.length) {
+            context?.getMembers("", "")
         }
-
         setColumnVisibility({
-            type: true,
             userName: true,
+            rank: true,
             actions: true,
-            lastActive: (context?.screenSize ?? 0) > 768,
-            createdAt: (context?.screenSize ?? 0) > 768,
+            photo: true,
+            wallet: (context?.screenSize ?? 0) > 768,
+            pendingDate: (context?.screenSize ?? 0) > 768,
+            contact: (context?.screenSize ?? 0) > 768,
+            email: (context?.screenSize ?? 0) > 768,
+            _id: false,
+            createdAt: false,
+            lastActive: false,
         })
-
     }, [])
 
     function handleUpdate(id: string) {
@@ -65,39 +65,60 @@ export function AdminTable() {
     function handleDelete(id: string) {
         console.log(`delete ${id}`);
     }
-    
-    type Admin = {
+
+    const data: Member[] = context?.membersData ?? []
+
+    type Member = {
         _id: string
         userName: string
-        type: "superAdmin" | "analyst" | "bookKeeper" | "customerService" | "barTender"
-        lastActive: string | null
+        contact: number
+        email: string
+        wallet: number
+        pendingDate: string
+        photo: string
         createdAt: string
+        lastActive: string
+        rank: string
     }
-    
-    const data: Admin[] = context?.adminsData ?? []
 
-    const columns: ColumnDef<Admin>[] = [
+    const columns: ColumnDef<Member>[] = [
+        {
+            id: "photo",
+            cell: ({ row }) => {
+                return (
+                    <img src={row.original.photo} alt="User photo" className="w-[100px] h-[100px] rounded-full object-center sm:w-[150px] sm:h-[150px] sm:rounded-none" />
+                )
+            }
+        },
         {
             accessorKey: "userName",
             header: "User Name",
-            cell: ({ row }) => (
-                <div className="text-center">{row.getValue("userName")}</div>
-            ),
+            cell: ({ row }) => <div>{row.getValue("userName")}</div>,
         },
         {
-            accessorKey: "type",
+            accessorKey: "contact",
+            header: "Contact",
+            cell: ({ row }) => <div>{row.getValue("contact")}</div>,
+        },
+        {
+            accessorKey: "email",
+            header: "Email",
+            cell: ({ row }) => <div>{row.getValue("email")}</div>,
+        },
+        {
+            accessorKey: "pendingDate",
             header: ({ column }) => {
                 return (
                     <Button
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        Type
+                        Pending Date
                         <ArrowUpDown />
                     </Button>
                 )
             },
-            cell: ({ row }) => <div className="text-center">{row.getValue("type")}</div>,
+            cell: ({ row }) => <div>{new Date(row.getValue("pendingDate") as string).toLocaleDateString()}</div>,
         },
         {
             accessorKey: "createdAt",
@@ -112,10 +133,7 @@ export function AdminTable() {
                     </Button>
                 )
             },
-            cell: ({ row }) => {
-                const createdAt = new Date(row.getValue("createdAt")).toLocaleDateString()
-                return <div className="text-center">{createdAt}</div>
-            },
+            cell: ({ row }) => <div>{new Date(row.getValue("createdAt") as string).toLocaleDateString()}</div>,
         },
         {
             accessorKey: "lastActive",
@@ -130,12 +148,36 @@ export function AdminTable() {
                     </Button>
                 )
             },
-            cell: ({ row }) => {
-                const lastActive = row.getValue("lastActive")
-                    ? new Date(row.getValue("lastActive")).toLocaleDateString()
-                    : "N/A"
-                return <div className="text-center">{lastActive}</div>
+            cell: ({ row }) => <div>{new Date(row.getValue("lastActive") as string).toLocaleDateString()}</div>,
+        },
+        {
+            accessorKey: "rank",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        Rank
+                        <ArrowUpDown />
+                    </Button>
+                )
             },
+            cell: ({ row }) => <div className="lowercase">{row.getValue("rank")}</div>,
+        }, {
+            accessorKey: "wallet",
+            header: ({ column }) => {
+                return (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                    >
+                        Wallet
+                        <ArrowUpDown />
+                    </Button>
+                )
+            },
+            cell: ({ row }) => <div className="lowercase">{row.getValue("wallet")}</div>,
         },
         {
             id: "actions",
@@ -160,6 +202,14 @@ export function AdminTable() {
         },
     ]
 
+    const [sorting, setSorting] = React.useState<SortingState>([])
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+        []
+    )
+    const [columnVisibility, setColumnVisibility] =
+        React.useState<VisibilityState>({})
+    const [rowSelection, setRowSelection] = React.useState({})
+
     const table = useReactTable({
         data,
         columns,
@@ -181,27 +231,15 @@ export function AdminTable() {
 
     return (
         <div className="w-full">
-            <div className="flex flex-wrap gap-2 items-center py-4">
+            <div className="flex items-center py-4">
                 <Input
                     placeholder="Filter emails..."
-                    value={(table.getColumn("userName")?.getFilterValue() as string) ?? ""}
+                    value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
-                        table.getColumn("userName")?.setFilterValue(event.target.value)
+                        table.getColumn("email")?.setFilterValue(event.target.value)
                     }
                     className="max-w-sm"
                 />
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button>Add Admin</Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle>Title</DialogTitle>
-                            <DialogDescription>Description</DialogDescription>
-                        </DialogHeader>
-                        <AdminForm />
-                    </DialogContent>
-                </Dialog>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">
@@ -236,7 +274,7 @@ export function AdminTable() {
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead className="text-center" key={header.id}>
+                                        <TableHead key={header.id}>
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
