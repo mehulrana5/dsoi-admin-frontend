@@ -58,10 +58,22 @@ function AdminsPage() {
             })
         }
 
+        const handleTouchStart = (event: TouchEvent) => {
+            const target = event.target as HTMLElement;
+            if (target.tagName === "INPUT") {
+                target.focus();
+                console.log("running");
+            }
+        };
+
         window.addEventListener("resize", handleResize)
+        window.addEventListener("touchstart", handleTouchStart);
         handleResize()
 
-        return () => window.removeEventListener("resize", handleResize)
+        return () => {
+            window.removeEventListener("resize", handleResize)
+            window.removeEventListener("touchstart", handleTouchStart);
+        }
     }, [])
 
     const data: Payment[] = context?.adminsData ?? []
