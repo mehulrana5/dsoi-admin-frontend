@@ -60,7 +60,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     "superAdmin": options,
     "customerService": [options[0], options[1], options[2], options[3]],
     "bookKeeper": [options[0], options[2], options[4]],
-    "barTender": [options[0]]
+    "barTender": [options[0],options[4]]
   }
 
   const location = useLocation();

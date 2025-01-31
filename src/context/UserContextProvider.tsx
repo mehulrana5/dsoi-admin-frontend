@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, ReactNode, FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 const BASE_URL = import.meta.env.VITE_BASE_URL || 'https://dsoi-backend.onrender.com/api';
+const MIN_AMOUNT = import.meta.env.VITE_MIN_AMOUNT || 4000
 
 // Define the context type
 interface UserContextType {
@@ -46,6 +47,8 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     }, []);
 
     console.log(`BASE URL ${BASE_URL}`);
+    console.log(`MIN_AMOUNT ${MIN_AMOUNT}`);
+
 
     const getHeaders = () => {
         return {
