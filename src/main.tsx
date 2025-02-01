@@ -11,6 +11,9 @@ import FamiliesPage from './pages/FamiliesPage.tsx';
 import LogsPage from './pages/LogsPage.tsx';
 import OrdersPage from './pages/OrdersPage/OrdersPage.tsx';
 import HomePage from './pages/HomePage.tsx';
+import { OrdersTable } from './pages/OrdersPage/OrdersTable.tsx';
+import CreateOrder from './pages/OrdersPage/CreateOrder.tsx';
+import ScanOrder from './pages/OrdersPage/ScanOrder.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -24,7 +27,11 @@ createRoot(document.getElementById('root')!).render(
             <Route path='/members' element={<MembersPages />} />
             <Route path='/families' element={<FamiliesPage />} />
             <Route path='/logs' element={<LogsPage />} />
-            <Route path='/orders' element={<OrdersPage />} />
+            <Route path='/orders' element={<OrdersPage />}>
+              <Route path='table' element={<OrdersTable />} />
+              <Route path='create' element={<CreateOrder />} />
+              <Route path='scan' element={<ScanOrder />} />
+            </Route>
           </Route>
         </Routes>
       </UserContextProvider>

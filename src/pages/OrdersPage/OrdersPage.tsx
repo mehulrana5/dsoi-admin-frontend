@@ -1,6 +1,4 @@
-import CreateOrder from "./CreateOrder"
-import { OrdersTable } from "./OrdersTable"
-import ScanOrder from "./ScanOrder"
+import { Outlet } from "react-router-dom"
 
 function OrdersPage() {
     return (
@@ -15,9 +13,7 @@ function OrdersPage() {
             margin: "auto",
         }}>
             <h1>Orders Page</h1>
-            <CreateOrder />
-            {/* <ScanOrder /> */}
-            <OrdersTable />
+            <Outlet />
         </div>
     )
 }

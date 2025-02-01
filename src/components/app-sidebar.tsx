@@ -10,108 +10,102 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { ModeToggle } from "./mode-toggle"
 import { Link, useLocation } from "react-router-dom"
-import { useState } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { UserContext } from "@/context/UserContextProvider"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-
   const context = React.useContext(UserContext)
 
-  // Always add new option at the end of the list else indexing will change 
-  const options = [
-    {
-      title: "Home",
-      url: "/home",
-      isActive: false
-    },
-    {
-      title: "Admins",
-      url: "/admins",
-      isActive: false
-    },
-    {
-      title: "Members",
-      url: "/members",
-      isActive: false
-    },
-    {
-      title: "Families",
-      url: "/families",
-      isActive: false
-    },
-    {
-      title: "Orders",
-      url: "/orders",
-      isActive: false
-    },
-    {
-      title: "Logs",
-      url: "/logs",
-      isActive: false
-    },
-  ]
+  interface Option {
+    title: string
+    url: string
+    isActive: boolean
+    submenu?: Option[] // Optional submenu property for nested items
+  }
 
-  const optionsByRole: { [key: string]: { title: string; url: string; isActive: boolean }[] } = {
+  // Always add new option at the end of the list else indexing will change 
+  const options: Option[] = useMemo(() => [
+    { title: "Home", url: "/home", isActive: false },
+    { title: "Admins", url: "/admins", isActive: false },
+    { title: "Members", url: "/members", isActive: false },
+    { title: "Families", url: "/families", isActive: false },
+    {
+      title: "Orders", url: "/orders", isActive: false,
+      submenu: [
+        { title: "Orders Table", url: "/orders/table", isActive: false },
+        { title: "Create Order", url: "/orders/create", isActive: false },
+        { title: "Scan Order", url: "/orders/scan", isActive: false },
+      ],
+    },
+    { title: "Logs", url: "/logs", isActive: false },
+  ], [])
+
+  const optionsByRole: { [key: string]: Option[] } = useMemo(() => ({
     "analyst": options,
     "superAdmin": options,
     "customerService": [options[0], options[1], options[2], options[3]],
-    "bookKeeper": [options[0], options[2], options[4]],
-    "barTender": [options[0],options[4]]
-  }
+    "bookKeeper": [options[0], options[2], ...(options[4]?.submenu?.slice(0, 2) || [])],
+    "barTender": [options[0], ...(options[4]?.submenu?.slice(2, 3) || [])]
+  }), [options])
 
   const location = useLocation();
 
-  const [data, setData] = useState({
-    navMain: [
-      {
-        title: "Operations",
-        url: "/",
-        items: optionsByRole[localStorage.getItem("userType") || ""] || [],
-      }
-    ],
-  });
+  const [activeItem, setActiveItem] = useState<{ mainIdx: number; subIdx: number | null }>({ mainIdx: -1, subIdx: null });
 
-  React.useEffect(() => {
-    setData(prevData => {
-      const newData = { ...prevData };
-      newData.navMain[0].items.forEach(e => {
-        e.isActive = e.url === location.pathname;
-      });
-      return newData;
-    });
-  }, [location.pathname]);
+  useEffect(() => {
+    const activeMainIdx = options.findIndex(item => item.url === location.pathname);
+    const activeSubIdx = options[activeMainIdx]?.submenu?.findIndex(subItem => subItem.url === location.pathname) || null;
+    setActiveItem({ mainIdx: activeMainIdx, subIdx: activeSubIdx });
+  }, [location.pathname, options]);
 
-  function handleClick(idx: number) {
-    setData(prevData => {
-      const newData = { ...prevData };
-      newData.navMain[0].items.forEach(e => {
-        e.isActive = false;
-      });
-      newData.navMain[0].items[idx].isActive = true;
-      return newData;
-    });
+  const handleClick = (idx: number) => {
+    setActiveItem({ mainIdx: idx, subIdx: null });
   }
+
+  const handleSubClick = (mainIdx: number, subIdx: number) => {
+    setActiveItem({ mainIdx, subIdx });
+  }
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
         <span>Select Theme <ModeToggle /></span>
       </SidebarHeader>
       <SidebarContent>
-        {data.navMain.map((item) => (
+        {optionsByRole[localStorage.getItem("userType") || ""]?.map((item, mainIdx) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupContent>
               <SidebarMenu>
-                {item.items.map((item, idx) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton className={`text-${context?.fontSize}`} asChild isActive={item.isActive}>
-                      <Link to={item.url} onClick={() => handleClick(idx)}>{item.title}</Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    className={`text-${context?.fontSize}`}
+                    asChild
+                    isActive={mainIdx === activeItem.mainIdx}
+                  >
+                    <Link to={item.url} onClick={() => handleClick(mainIdx)}>{item.title}</Link>
+                  </SidebarMenuButton>
+                  {item.submenu && (
+                    <SidebarMenuSub>
+                      {item.submenu.map((subItem, subIdx) => (
+                        <SidebarMenuSubItem key={subItem.title}>
+                          <SidebarMenuSubButton
+                            asChild
+                            isActive={subIdx === activeItem.subIdx}
+                          >
+                            <Link to={subItem.url} onClick={() => handleSubClick(mainIdx, subIdx)}>{subItem.title}</Link>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  )}
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
