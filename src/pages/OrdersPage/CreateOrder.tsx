@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UserContext } from "@/context/UserContextProvider";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 
 interface Credentials {
     contact?: string;
@@ -14,6 +14,7 @@ interface Member {
     photo?: string;
     userName?: string;
     wallet?: string;
+    _id?: string
 }
 
 function CreateOrder() {
@@ -24,16 +25,14 @@ function CreateOrder() {
     async function handleSubmit(e: React.FormEvent, type: "contact" | "amount") {
         e.preventDefault();
         if (type === "contact") {
-            const res = (await context?.getMembers("contact", cred.contact || "", 0, 10)) || {
-                data: [],
-            };
+            const res = await context?.getMembers("contact", cred.contact || "", 0, 10) || { data: [], };
             if (res.data.length === 0) {
                 alert(`No member with number ${cred.contact}`);
                 return;
             }
             setMember(res.data[0]);
         } else {
-            console.log(cred.amount);
+            context?.createOrder(member?._id ?? "", Number(cred.amount ?? 0), Number(member?.wallet) ?? 0)
             setCred({});
             setMember(null);
         }
@@ -42,13 +41,6 @@ function CreateOrder() {
     function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
         setCred((prev) => ({ ...prev, [e.target.name]: e.target.value }));
     }
-
-    useEffect(() => {
-        const userType = localStorage.getItem("userType");
-        if (userType !== "bookKeeper") {
-            // Additional logic if needed
-        }
-    }, []);
 
     return (
         <div className="flex flex-col gap-2">

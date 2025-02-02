@@ -19,6 +19,7 @@ interface UserContextType {
     totalMembers: number;
     ordersData: any[];
     getOrders: (type: string, query: string) => Promise<void>;
+    createOrder: (member_id: string, price: number, wallet: number) => Promise<void>;
 }
 
 // Create the UserContext
@@ -49,7 +50,6 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     console.log(`BASE URL ${BASE_URL}`);
     console.log(`MIN_AMOUNT ${MIN_AMOUNT}`);
 
-
     const getHeaders = () => {
         return {
             'Content-Type': 'application/json',
@@ -66,15 +66,12 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
                 headers: getHeaders(),
                 body: JSON.stringify({ userName: credentials.username, password: credentials.password })
             });
-            if (res.status === 401) {
-                logout();
-                return;
-            }
+
+            if (res.status === 401) return logout();
+            
             const data = await res.json();
-            if (data.error) {
-                alert(data.error.message);
-                return;
-            }
+            if (data.error) return alert(data.error.message);
+
             localStorage.setItem("id", data.admin.id);
             localStorage.setItem("userName", data.admin.userName);
             localStorage.setItem("token", `Berear ${data.token}`);
@@ -104,15 +101,12 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
                 headers: getHeaders(),
                 body: JSON.stringify({ type, query })
             });
-            if (res.status === 401) {
-                logout();
-                return;
-            }
+
+            if (res.status === 401) return logout();
+            
             const data = await res.json();
-            if (data.error) {
-                alert(data.error.message);
-                return;
-            }
+            if (data.error) return alert(data.error.message);
+
             setAdminsData(data);
         } catch (error) {
             console.error('Get admins error:', error);
@@ -130,15 +124,12 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
                 headers: getHeaders(),
                 body: JSON.stringify({ type, query, skip, limit })
             });
-            if (res.status === 401) {
-                logout();
-                return;
-            }
+
+            if (res.status === 401) return logout();
+            
             const data = await res.json();
-            if (data.error) {
-                alert(data.error.message);
-                return;
-            }
+            if (data.error) return alert(data.error.message);
+
             setMembersData(data.data);
             setTotalMembers(data.count);
             return data;
@@ -158,19 +149,44 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
                 headers: getHeaders(),
                 body: JSON.stringify({ type, query })
             });
-            if (res.status === 401) {
-                logout();
-                return;
-            }
+            
+            if (res.status === 401) return logout();
+            
             const data = await res.json();
-            if (data.error) {
-                alert(data.error.message);
-                return;
-            }
+            if (data.error) return alert(data.error.message);
+            
             setOrdersData(data.data);
         } catch (error) {
             console.error('Get orders error:', error);
             alert('Failed to fetch orders. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
+    const createOrder = async (member_id: string, price: number, wallet: number) => {
+        setLoading("createOrder");
+
+        if (wallet - price < MIN_AMOUNT) {
+            return alert(`Cannot deduct: Wallet balance would fall below ${MIN_AMOUNT}`);
+        }
+
+        try {
+            const res = await fetch(`${BASE_URL}/orders`, {
+                method: "POST",
+                headers: getHeaders(),
+                body: JSON.stringify({ member_id, price })
+            });
+
+            if (res.status === 401) return logout();
+
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+
+            alert(data.message);
+        } catch (error) {
+            console.error("Create orders error:", error);
+            alert("Failed to create orders. Please try again.");
         } finally {
             setLoading("");
         }
@@ -192,6 +208,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             totalMembers,
             ordersData,
             getOrders,
+            createOrder
         }}>
             {children}
         </UserContext.Provider>
