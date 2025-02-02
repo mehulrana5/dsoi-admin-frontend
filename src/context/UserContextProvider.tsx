@@ -20,6 +20,7 @@ interface UserContextType {
     ordersData: any[];
     getOrders: (type: string, query: string, id: string) => Promise<void>;
     createOrder: (member_id: string, price: number, wallet: number) => Promise<void>;
+    updateOrder: (order_id: string, operation: string, query: { status: string }) => Promise<void>;
 }
 
 // Create the UserContext
@@ -191,6 +192,30 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
+    const updateOrder = async (order_id: string, operation: string, query: { status: string }) => {
+        setLoading("createOrder");
+
+        try {
+            const res = await fetch(`${BASE_URL}/orders`, {
+                method: "PUT",
+                headers: getHeaders(),
+                body: JSON.stringify({ orderId: order_id, operation, query })
+            });
+
+            if (res.status === 401) return logout();
+
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            alert(data.message);
+            navigate(-1)
+        } catch (error) {
+            console.error("Update orders error:", error);
+            alert("Failed to update orders. Please try again.");
+        } finally {
+            setLoading("");
+        }
+    };
+
     return (
         <UserContext.Provider value={{
             loading,
@@ -207,7 +232,8 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             totalMembers,
             ordersData,
             getOrders,
-            createOrder
+            createOrder,
+            updateOrder
         }}>
             {children}
         </UserContext.Provider>

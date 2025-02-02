@@ -42,7 +42,7 @@ function OrderInfo() {
                 <Input value={new Date(order?.orderDate).toLocaleDateString()} readOnly />
             </CardContent>
             <CardFooter>
-                <Button>Complete</Button>
+                <Button onClick={() => context.updateOrder(order?._id, "status", { status: "delivered" })}>Complete</Button>
             </CardFooter>
         </Card>
     )
