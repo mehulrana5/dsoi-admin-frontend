@@ -14,6 +14,7 @@ import HomePage from './pages/HomePage.tsx';
 import { OrdersTable } from './pages/OrdersPage/OrdersTable.tsx';
 import CreateOrder from './pages/OrdersPage/CreateOrder.tsx';
 import ScanOrder from './pages/OrdersPage/ScanOrder.tsx';
+import OrderInfo from './pages/OrdersPage/OrderInfo.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -31,6 +32,7 @@ createRoot(document.getElementById('root')!).render(
               <Route path='table' element={<OrdersTable />} />
               <Route path='create' element={<CreateOrder />} />
               <Route path='scan' element={<ScanOrder />} />
+              <Route path='scan/:id' element={<OrderInfo />} />
             </Route>
           </Route>
         </Routes>

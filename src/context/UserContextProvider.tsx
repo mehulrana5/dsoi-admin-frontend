@@ -18,7 +18,7 @@ interface UserContextType {
     screenSize: number;
     totalMembers: number;
     ordersData: any[];
-    getOrders: (type: string, query: string) => Promise<void>;
+    getOrders: (type: string, query: string, id: string) => Promise<void>;
     createOrder: (member_id: string, price: number, wallet: number) => Promise<void>;
 }
 
@@ -68,7 +68,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             });
 
             if (res.status === 401) return logout();
-            
+
             const data = await res.json();
             if (data.error) return alert(data.error.message);
 
@@ -103,7 +103,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             });
 
             if (res.status === 401) return logout();
-            
+
             const data = await res.json();
             if (data.error) return alert(data.error.message);
 
@@ -126,7 +126,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             });
 
             if (res.status === 401) return logout();
-            
+
             const data = await res.json();
             if (data.error) return alert(data.error.message);
 
@@ -141,21 +141,20 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
-    const getOrders = async (type: string, query: string) => {
+    const getOrders = async (type: string, query: string, id: string) => {
         setLoading("getOrders");
         try {
-            const res = await fetch(`${BASE_URL}/getOrders`, {
+            const res = await fetch(`${BASE_URL}/getOrders?orderId=${id}`, {
                 method: 'POST',
                 headers: getHeaders(),
                 body: JSON.stringify({ type, query })
             });
-            
+
             if (res.status === 401) return logout();
-            
+
             const data = await res.json();
             if (data.error) return alert(data.error.message);
-            
-            setOrdersData(data.data);
+            setOrdersData(data);
         } catch (error) {
             console.error('Get orders error:', error);
             alert('Failed to fetch orders. Please try again.');
