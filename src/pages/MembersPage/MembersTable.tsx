@@ -51,7 +51,7 @@ export function MembersTable() {
             actions: true,
             photo: true,
             wallet: (context?.screenSize ?? 0) > 768,
-            pendingDate: (context?.screenSize ?? 0) > 768,
+            pendingAmount: (context?.screenSize ?? 0) > 768,
             contact: (context?.screenSize ?? 0) > 768,
             email: (context?.screenSize ?? 0) > 768,
             _id: false,
@@ -76,7 +76,7 @@ export function MembersTable() {
         contact: number
         email: string
         wallet: number
-        pendingDate: string
+        pendingAmount: string
         photo: string
         createdAt: string
         lastActive: string
@@ -108,19 +108,19 @@ export function MembersTable() {
             cell: ({ row }) => <div>{row.getValue("email")}</div>,
         },
         {
-            accessorKey: "pendingDate",
+            accessorKey: "pendingAmount",
             header: ({ column }) => {
                 return (
                     <Button
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        Pending Date
+                        Pending Amount
                         <ArrowUpDown />
                     </Button>
                 )
             },
-            cell: ({ row }) => <div>{new Date(row.getValue("pendingDate") as string).toLocaleDateString()}</div>,
+            cell: ({ row }) =>  <div>{row.getValue("pendingAmount")}</div>,
         },
         {
             accessorKey: "createdAt",
