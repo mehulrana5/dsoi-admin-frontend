@@ -8,7 +8,7 @@ import Dashboard from './pages/Layout.tsx';
 import AdminsPage from './pages/AdminsPage/AdminsPage.tsx';
 import MembersPages from './pages/MembersPage/MembersPages.tsx';
 import FamiliesPage from './pages/FamiliesPage.tsx';
-import LogsPage from './pages/LogsPage.tsx';
+import LogsPage from './pages/LogsPage/LogsPage.tsx';
 import OrdersPage from './pages/OrdersPage/OrdersPage.tsx';
 import HomePage from './pages/HomePage.tsx';
 import { OrdersTable } from './pages/OrdersPage/OrdersTable.tsx';

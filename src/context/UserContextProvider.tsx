@@ -21,6 +21,19 @@ interface UserContextType {
     getOrders: (type: string, query: string, id: string) => Promise<void>;
     createOrder: (member_id: string, price: number, wallet: number) => Promise<void>;
     updateOrder: (order_id: string, operation: string, query: { status: string }) => Promise<void>;
+    getLogs: (type: string, query: string, skip: number, limit: number) => Promise<void>;
+    logData: {
+        status: number;
+        data: {
+            _id: string;
+            initiatorId: string;
+            targetId: string;
+            targetModel: string;
+            action: string;
+            timeStamp: string;
+        }[];
+        count: number
+    };
 }
 
 // Create the UserContext
@@ -40,6 +53,20 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     const [screenSize, setScreenSize] = useState<number>(window.innerWidth);
     const [totalMembers, setTotalMembers] = useState<number>(0);
     const [ordersData, setOrdersData] = useState<any[]>([]);
+
+    const [logData, setLogData] = useState<{
+        status: number,
+        data: {
+            _id: string,
+            initiatorId: string,
+            targetId: string,
+            targetModel: string,
+            action: string,
+            timeStamp: string
+        }[],
+        count: number
+    }>({ status: 0, data: [], count: 0 });
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -216,6 +243,29 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
+    const getLogs = async (type: string, query: string, skip: number, limit: number) => {
+        try {
+            console.log("running");
+
+            const res = await fetch(`${BASE_URL}/getLogs`, {
+                method: "POST",
+                headers: getHeaders(),
+                body: JSON.stringify({ type, query, skip, limit })
+            });
+
+            if (res.status === 401) return logout();
+
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+
+            setLogData(data.result)
+
+        } catch (error) {
+            console.log("get logs error:", error);
+            alert("Failed to get Logs.");
+        }
+    }
+
     return (
         <UserContext.Provider value={{
             loading,
@@ -233,7 +283,9 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             ordersData,
             getOrders,
             createOrder,
-            updateOrder
+            updateOrder,
+            getLogs,
+            logData
         }}>
             {children}
         </UserContext.Provider>

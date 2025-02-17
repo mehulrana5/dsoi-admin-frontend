@@ -1,3 +1,5 @@
+import { LogsTable } from "./LogsTable"
+
 function LogsPage() {
     return (
         <div style={{
@@ -11,6 +13,7 @@ function LogsPage() {
             margin: "auto",
         }}>
             <h1>Logs Page</h1>
+            <LogsTable />
         </div>
     )
 }
