@@ -40,10 +40,17 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 export function MembersTable() {
 
     const context = React.useContext(UserContext)
+    const limit = 2;
+    const [totalPages, setTotalPages] = React.useState(0);
+    const [curpage, setCurPage] = React.useState(0);
+    const [sorting, setSorting] = React.useState<SortingState>([])
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
+    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
+    const [rowSelection, setRowSelection] = React.useState({})
 
     React.useEffect(() => {
-        if (!context?.membersData.length) {
-            context?.getMembers("", "", 0, 10)
+        if (!context?.membersData.data.length) {
+            context?.getMembers("", "", 0, limit)
         }
         setColumnVisibility({
             userName: true,
@@ -60,6 +67,11 @@ export function MembersTable() {
         })
     }, [])
 
+    React.useEffect(() => {
+        const newCount = context?.membersData?.count || 0;
+        setTotalPages(Math.ceil(newCount / limit));
+    }, [context?.membersData]);
+
     function handleUpdate(id: string) {
         console.log(`update ${id}`);
     }
@@ -68,7 +80,7 @@ export function MembersTable() {
         console.log(`delete ${id}`);
     }
 
-    const data: Member[] = context?.membersData ?? []
+    const data: Member[] = context?.membersData.data ?? []
 
     type Member = {
         _id: string
@@ -76,7 +88,7 @@ export function MembersTable() {
         contact: number
         email: string
         wallet: number
-        pendingAmount: string
+        pendingAmount: number
         photo: string
         createdAt: string
         lastActive: string
@@ -120,7 +132,7 @@ export function MembersTable() {
                     </Button>
                 )
             },
-            cell: ({ row }) =>  <div>{row.getValue("pendingAmount")}</div>,
+            cell: ({ row }) => <div>{row.getValue("pendingAmount")}</div>,
         },
         {
             accessorKey: "createdAt",
@@ -204,14 +216,6 @@ export function MembersTable() {
         },
     ]
 
-    const [sorting, setSorting] = React.useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-        []
-    )
-    const [columnVisibility, setColumnVisibility] =
-        React.useState<VisibilityState>({})
-    const [rowSelection, setRowSelection] = React.useState({})
-
     const table = useReactTable({
         data,
         columns,
@@ -230,6 +234,20 @@ export function MembersTable() {
             rowSelection,
         },
     })
+
+    function handleNext() {
+        if (curpage < totalPages - 1) {
+            setCurPage(curpage + 1);
+            context?.getMembers("", "", (curpage + 1) * limit, limit);
+        }
+    }
+
+    function handlePrev() {
+        if (curpage > 0) {
+            setCurPage(curpage - 1);
+            context?.getMembers("", "", (curpage - 1) * limit, limit);
+        }
+    }
 
     return (
         <div className="w-full">
@@ -333,26 +351,11 @@ export function MembersTable() {
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
                 <div className="flex-1 text-sm text-muted-foreground">
-                    {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
+                    Page {curpage + 1} of {totalPages}
                 </div>
                 <div className="space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Next
-                    </Button>
+                    <Button className="sm" variant="outline" onClick={handlePrev} disabled={curpage === 0}>Previous</Button>
+                    <Button className="sm" variant="outline" onClick={handleNext} disabled={curpage >= totalPages - 1}>Next</Button>
                 </div>
             </div>
         </div>

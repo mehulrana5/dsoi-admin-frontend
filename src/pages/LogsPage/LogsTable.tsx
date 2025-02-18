@@ -37,28 +37,31 @@ type Log = {
 export function LogsTable() {
     const context = React.useContext(UserContext);
     const limit = 10;
-
-    const [count, setCount] = React.useState(0);
     const [totalPages, setTotalPages] = React.useState(0);
     const [curpage, setCurPage] = React.useState(0);
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
-        _id: false,
-        initiatorId: false,
-        targetId: false,
-        targetModel: true,
-        action: true,
-        timeStamp: true,
-    });
+
+    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+    const [sorting, setSorting] = React.useState<SortingState>([]);
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+    const [rowSelection, setRowSelection] = React.useState({});
+
 
     React.useEffect(() => {
         if (!context?.logData?.data?.length) {
-            context?.getLogs("", "", 0, 10);
+            context?.getLogs("", "", 0, limit);
         }
+        setColumnVisibility({
+            _id: (context?.screenSize ?? 0) > 768,
+            initiatorId: (context?.screenSize ?? 0) > 768,
+            targetId: (context?.screenSize ?? 0) > 768,
+            targetModel: true,
+            action: true,
+            timeStamp: true,
+        })
     }, [context]);
 
     React.useEffect(() => {
         const newCount = context?.logData?.count || 0;
-        setCount(newCount);
         setTotalPages(Math.ceil(newCount / limit));
     }, [context?.logData]);
 
@@ -95,10 +98,6 @@ export function LogsTable() {
             ),
         },
     ];
-
-    const [sorting, setSorting] = React.useState<SortingState>([]);
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-    const [rowSelection, setRowSelection] = React.useState({});
 
     const table = useReactTable({
         data,
@@ -173,10 +172,12 @@ export function LogsTable() {
                 </Table>
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
-                <span>Page {curpage + 1} of {totalPages}</span>
+                <div className="flex-1 text-sm text-muted-foreground">
+                    Page {curpage + 1} of {totalPages}
+                </div>
                 <div className="space-x-2">
-                    <Button onClick={handlePrev} disabled={curpage === 0}>Previous</Button>
-                    <Button onClick={handleNext} disabled={curpage >= totalPages - 1}>Next</Button>
+                    <Button className="sm" variant="outline" onClick={handlePrev} disabled={curpage === 0}>Previous</Button>
+                    <Button className="sm" variant="outline" onClick={handleNext} disabled={curpage >= totalPages - 1}>Next</Button>
                 </div>
             </div>
         </div>

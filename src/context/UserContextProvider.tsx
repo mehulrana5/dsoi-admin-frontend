@@ -14,9 +14,23 @@ interface UserContextType {
     fontSize: string;
     setFontSize: (size: string) => void;
     getMembers: (type: string, query: string, skip: number, limit: number) => Promise<void>;
-    membersData: any[];
+    membersData: {
+        status: number,
+        data: {
+            _id: string,
+            userName: string,
+            contact: number,
+            email: string,
+            wallet: number,
+            photo: string,
+            rank: string,
+            createdAt: string,
+            lastActive: string,
+            pendingAmount: number
+        }[],
+        count: number
+    };
     screenSize: number;
-    totalMembers: number;
     ordersData: any[];
     getOrders: (type: string, query: string, id: string) => Promise<void>;
     createOrder: (member_id: string, price: number, wallet: number) => Promise<void>;
@@ -49,10 +63,25 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     const [loading, setLoading] = useState<string>("");
     const [adminsData, setAdminsData] = useState<any[]>([]);
     const [fontSize, setFontSize] = useState<string>("sm");
-    const [membersData, setMembersData] = useState<any[]>([]);
     const [screenSize, setScreenSize] = useState<number>(window.innerWidth);
-    const [totalMembers, setTotalMembers] = useState<number>(0);
     const [ordersData, setOrdersData] = useState<any[]>([]);
+
+    const [membersData, setMembersData] = useState<{
+        status: number,
+        data: {
+            _id: string,
+            userName: string,
+            contact: number,
+            email: string,
+            wallet: number,
+            photo: string,
+            rank: string,
+            createdAt: string,
+            lastActive: string,
+            pendingAmount: number
+        }[],
+        count: number
+    }>({ status: 0, data: [], count: 0 });
 
     const [logData, setLogData] = useState<{
         status: number,
@@ -158,8 +187,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             const data = await res.json();
             if (data.error) return alert(data.error.message);
 
-            setMembersData(data.data);
-            setTotalMembers(data.count);
+            setMembersData(data);
             return data;
         } catch (error) {
             console.error('Get members error:', error);
@@ -279,7 +307,6 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             getMembers,
             membersData,
             screenSize,
-            totalMembers,
             ordersData,
             getOrders,
             createOrder,
