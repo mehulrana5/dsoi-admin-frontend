@@ -40,7 +40,6 @@ const formSchema = z.object({
     contact: z.number(),
     email: z.string(),
     wallet: z.number().min(4000),
-    rank: z.string(),
     pw: z.string(),
     cpw: z.string(),
     photo: z.string()
@@ -168,34 +167,6 @@ export default function MemberForm() {
                             )}
                         />
                     </div>
-
-                    <div className="col-span-6">
-
-                        <FormField
-                            control={form.control}
-                            name="rank"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Rank</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="" />
-                                            </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                            <SelectItem value="m@example.com">m@example.com</SelectItem>
-                                            <SelectItem value="m@google.com">m@google.com</SelectItem>
-                                            <SelectItem value="m@support.com">m@support.com</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-
                 </div>
 
                 <div className="grid grid-cols-12 gap-1">

@@ -52,7 +52,6 @@ export function AdminTable() {
             type: true,
             userName: true,
             actions: true,
-            lastActive: (context?.screenSize ?? 0) > 768,
             createdAt: (context?.screenSize ?? 0) > 768,
         })
 
@@ -70,7 +69,6 @@ export function AdminTable() {
         _id: string
         userName: string
         type: "superAdmin" | "analyst" | "bookKeeper" | "customerService" | "barTender"
-        lastActive: string | null
         createdAt: string
     }
     
@@ -115,26 +113,6 @@ export function AdminTable() {
             cell: ({ row }) => {
                 const createdAt = new Date(row.getValue("createdAt")).toLocaleDateString()
                 return <div className="text-center">{createdAt}</div>
-            },
-        },
-        {
-            accessorKey: "lastActive",
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        Last Active
-                        <ArrowUpDown />
-                    </Button>
-                )
-            },
-            cell: ({ row }) => {
-                const lastActive = row.getValue("lastActive")
-                    ? new Date(row.getValue("lastActive")).toLocaleDateString()
-                    : "N/A"
-                return <div className="text-center">{lastActive}</div>
             },
         },
         {

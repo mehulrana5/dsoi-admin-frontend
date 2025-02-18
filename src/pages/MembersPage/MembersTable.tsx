@@ -54,7 +54,6 @@ export function MembersTable() {
         }
         setColumnVisibility({
             userName: true,
-            rank: true,
             actions: true,
             photo: true,
             wallet: (context?.screenSize ?? 0) > 768,
@@ -63,7 +62,6 @@ export function MembersTable() {
             email: (context?.screenSize ?? 0) > 768,
             _id: false,
             createdAt: false,
-            lastActive: false,
         })
     }, [])
 
@@ -91,8 +89,6 @@ export function MembersTable() {
         pendingAmount: number
         photo: string
         createdAt: string
-        lastActive: string
-        rank: string
     }
 
     const columns: ColumnDef<Member>[] = [
@@ -150,35 +146,6 @@ export function MembersTable() {
             cell: ({ row }) => <div>{new Date(row.getValue("createdAt") as string).toLocaleDateString()}</div>,
         },
         {
-            accessorKey: "lastActive",
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        Last Active
-                        <ArrowUpDown />
-                    </Button>
-                )
-            },
-            cell: ({ row }) => <div>{new Date(row.getValue("lastActive") as string).toLocaleDateString()}</div>,
-        },
-        {
-            accessorKey: "rank",
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        Rank
-                        <ArrowUpDown />
-                    </Button>
-                )
-            },
-            cell: ({ row }) => <div className="lowercase">{row.getValue("rank")}</div>,
-        }, {
             accessorKey: "wallet",
             header: ({ column }) => {
                 return (

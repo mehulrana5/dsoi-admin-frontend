@@ -23,9 +23,7 @@ interface UserContextType {
             email: string,
             wallet: number,
             photo: string,
-            rank: string,
             createdAt: string,
-            lastActive: string,
             pendingAmount: number
         }[],
         count: number
@@ -75,9 +73,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             email: string,
             wallet: number,
             photo: string,
-            rank: string,
             createdAt: string,
-            lastActive: string,
             pendingAmount: number
         }[],
         count: number
