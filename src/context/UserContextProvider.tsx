@@ -5,15 +5,22 @@ const MIN_AMOUNT = import.meta.env.VITE_MIN_AMOUNT || 4000
 
 // Define the context type
 interface UserContextType {
-    loading: string;
     login: (credentials: { username: string; password: string }) => Promise<void>;
     logout: () => void;
     getAdmins: (type: string, query: string) => Promise<void>;
-    adminsData: any[];
-    BASE_URL: String;
-    fontSize: string;
     setFontSize: (size: string) => void;
     getMembers: (type: string, query: string, skip: number, limit: number) => Promise<void>;
+    getOrders: (type: string, query: string, id: string) => Promise<void>;
+    createOrder: (member_id: string, price: number, wallet: number) => Promise<void>;
+    updateOrder: (order_id: string, operation: string, query: { status: string }) => Promise<void>;
+    getLogs: (type: string, query: string, skip: number, limit: number) => Promise<void>;
+    getItems: (type: string, query: string, skip: number, limit: number) => Promise<void>;
+    loading: string;
+    BASE_URL: String;
+    fontSize: string;
+    screenSize: number;
+    adminsData: any[];
+    ordersData: any[];
     membersData: {
         status: number,
         data: {
@@ -28,12 +35,6 @@ interface UserContextType {
         }[],
         count: number
     };
-    screenSize: number;
-    ordersData: any[];
-    getOrders: (type: string, query: string, id: string) => Promise<void>;
-    createOrder: (member_id: string, price: number, wallet: number) => Promise<void>;
-    updateOrder: (order_id: string, operation: string, query: { status: string }) => Promise<void>;
-    getLogs: (type: string, query: string, skip: number, limit: number) => Promise<void>;
     logData: {
         status: number;
         data: {
@@ -44,6 +45,18 @@ interface UserContextType {
             action: string;
             timeStamp: string;
         }[];
+        count: number
+    };
+    itemsData: {
+        status: number,
+        data: {
+            _id: string,
+            name: string,
+            brand: string,
+            type: string,
+            qty: number,
+            price: number
+        }[],
         count: number
     };
 }
@@ -88,6 +101,19 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             targetModel: string,
             action: string,
             timeStamp: string
+        }[],
+        count: number
+    }>({ status: 0, data: [], count: 0 });
+
+    const [itemsData, setItemsData] = useState<{
+        status: number,
+        data: {
+            _id: string,
+            name: string,
+            brand: string,
+            type: string,
+            qty: number,
+            price: number
         }[],
         count: number
     }>({ status: 0, data: [], count: 0 });
@@ -290,25 +316,51 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     }
 
+    const getItems = async (type: string, query: string, skip: number, limit: number) => {
+        setLoading("getItems");
+        try {
+            const res = await fetch(`${BASE_URL}/getItems`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ type, query, skip, limit })
+            });
+
+            if (res.status === 401) return logout();
+
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+
+            setItemsData(data);
+            return data;
+        } catch (error) {
+            console.error('Get items error:', error);
+            alert('Failed to fetch items. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
     return (
         <UserContext.Provider value={{
-            loading,
             login,
             logout,
             getAdmins,
-            adminsData,
-            BASE_URL,
-            fontSize,
             setFontSize,
             getMembers,
-            membersData,
-            screenSize,
-            ordersData,
             getOrders,
             createOrder,
             updateOrder,
             getLogs,
-            logData
+            getItems,
+            loading,
+            adminsData,
+            BASE_URL,
+            fontSize,
+            membersData,
+            screenSize,
+            ordersData,
+            logData,
+            itemsData,
         }}>
             {children}
         </UserContext.Provider>

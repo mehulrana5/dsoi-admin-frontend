@@ -33,14 +33,124 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-import { UserContext } from "@/context/UserContextProvider"
-import MemberForm from "./MemberForm"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 
-export function MembersTable() {
+import { UserContext } from "@/context/UserContextProvider"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import MyForm from "./InventoryForm"
+
+type Item = {
+    _id: string,
+    name: string,
+    brand: string,
+    type: string,
+    qty: number,
+    price: number
+}
+
+async function handleUpdate(id: string) {
+    console.log(`update ${id}`);
+}
+
+async function handleDelete(id: string) {
+    console.log(`delete ${id}`);
+
+}
+
+const columns: ColumnDef<Item>[] = [
+    {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => (
+            <div className="text-center capitalize">{row.getValue("name")}</div>
+        ),
+    },
+    {
+        accessorKey: "brand",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Brand
+                    <ArrowUpDown />
+                </Button>
+            )
+        },
+        cell: ({ row }) => <div className="text-center lowercase">{row.getValue("brand")}</div>,
+    },
+    {
+        accessorKey: "type",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Type
+                    <ArrowUpDown />
+                </Button>
+            )
+        },
+        cell: ({ row }) => <div className="text-center lowercase">{row.getValue("type")}</div>,
+    },
+    {
+        accessorKey: "qty",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Qty
+                    <ArrowUpDown />
+                </Button>
+            )
+        },
+        cell: ({ row }) => <div className="text-center lowercase">{row.getValue("qty")}</div>,
+    },
+    {
+        accessorKey: "price",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Price
+                    <ArrowUpDown />
+                </Button>
+            )
+        },
+        cell: ({ row }) => <div className="text-center lowercase">{row.getValue("price")}</div>,
+    },
+    {
+        id: "actions",
+        enableHiding: false,
+        cell: ({ row }) => {
+            return (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="h-8 w-8 p-0">
+                            <span className="sr-only">Open menu</span>
+                            <MoreHorizontal />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuItem onClick={() => handleUpdate(row.original._id)}>Update</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDelete(row.original._id)}>Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            )
+        },
+    },
+]
+
+export function InventoryTable() {
 
     const context = React.useContext(UserContext)
-    const limit = 2;
+    const limit = (context?.screenSize ?? 0) > 768 ? 8 : 7;
     const [totalPages, setTotalPages] = React.useState(0);
     const [curpage, setCurPage] = React.useState(0);
     const [sorting, setSorting] = React.useState<SortingState>([])
@@ -48,140 +158,27 @@ export function MembersTable() {
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
 
+    const data: Item[] = context?.itemsData.data ?? []
+
     React.useEffect(() => {
-        if (!context?.membersData.data.length) {
-            context?.getMembers("", "", 0, limit)
+        if (!context?.itemsData.data.length) {
+            context?.getItems("", "", 0, limit)
         }
         setColumnVisibility({
-            userName: true,
-            actions: true,
-            photo: true,
-            wallet: (context?.screenSize ?? 0) > 768,
-            pendingAmount: (context?.screenSize ?? 0) > 768,
-            contact: (context?.screenSize ?? 0) > 768,
-            email: (context?.screenSize ?? 0) > 768,
             _id: false,
-            createdAt: false,
+            name: true,
+            brand: true,
+            type: true,
+            qty: (context?.screenSize ?? 0) > 768,
+            price: (context?.screenSize ?? 0) > 768,
+            wallet: (context?.screenSize ?? 0) > 768,
         })
     }, [])
 
     React.useEffect(() => {
-        const newCount = context?.membersData?.count || 0;
+        const newCount = context?.itemsData?.count || 0;
         setTotalPages(Math.ceil(newCount / limit));
-    }, [context?.membersData]);
-
-    function handleUpdate(id: string) {
-        console.log(`update ${id}`);
-    }
-
-    function handleDelete(id: string) {
-        console.log(`delete ${id}`);
-    }
-
-    const data: Member[] = context?.membersData.data ?? []
-
-    type Member = {
-        _id: string
-        userName: string
-        contact: number
-        email: string
-        wallet: number
-        pendingAmount: number
-        photo: string
-        createdAt: string
-    }
-
-    const columns: ColumnDef<Member>[] = [
-        {
-            id: "photo",
-            cell: ({ row }) => {
-                return (
-                    <img src={row.original.photo} alt="User photo" className="w-[100px] h-[100px] rounded-full object-center sm:w-[150px] sm:h-[150px] sm:rounded-none" />
-                )
-            }
-        },
-        {
-            accessorKey: "userName",
-            header: "User Name",
-            cell: ({ row }) => <div className="text-center">{row.getValue("userName")}</div>,
-        },
-        {
-            accessorKey: "contact",
-            header: "Contact",
-            cell: ({ row }) => <div className="text-center">{row.getValue("contact")}</div>,
-        },
-        {
-            accessorKey: "email",
-            header: "Email",
-            cell: ({ row }) => <div className="text-center">{row.getValue("email")}</div>,
-        },
-        {
-            accessorKey: "pendingAmount",
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        Pending Amount
-                        <ArrowUpDown />
-                    </Button>
-                )
-            },
-            cell: ({ row }) => <div className="text-center">{row.getValue("pendingAmount")}</div>,
-        },
-        {
-            accessorKey: "createdAt",
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        Created At
-                        <ArrowUpDown />
-                    </Button>
-                )
-            },
-            cell: ({ row }) => <div className="text-center">{new Date(row.getValue("createdAt") as string).toLocaleDateString()}</div>,
-        },
-        {
-            accessorKey: "wallet",
-            header: ({ column }) => {
-                return (
-                    <Button
-                        variant="ghost"
-                        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                    >
-                        Wallet
-                        <ArrowUpDown />
-                    </Button>
-                )
-            },
-            cell: ({ row }) => <div className="text-center lowercase">{row.getValue("wallet")}</div>,
-        },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => {
-                return (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleUpdate(row.original._id)}>Update</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDelete(row.original._id)}>Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                )
-            },
-        },
-    ]
+    }, [context?.itemsData]);
 
     const table = useReactTable({
         data,
@@ -205,14 +202,14 @@ export function MembersTable() {
     function handleNext() {
         if (curpage < totalPages - 1) {
             setCurPage(curpage + 1);
-            context?.getMembers("", "", (curpage + 1) * limit, limit);
+            context?.getItems("", "", (curpage + 1) * limit, limit);
         }
     }
 
     function handlePrev() {
         if (curpage > 0) {
             setCurPage(curpage - 1);
-            context?.getMembers("", "", (curpage - 1) * limit, limit);
+            context?.getItems("", "", (curpage - 1) * limit, limit);
         }
     }
 
@@ -220,23 +217,23 @@ export function MembersTable() {
         <div className="w-full">
             <div className="flex flex-wrap gap-2 items-center py-4">
                 <Input
-                    placeholder="Filter emails..."
-                    value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+                    placeholder="Filter name..."
+                    value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
-                        table.getColumn("email")?.setFilterValue(event.target.value)
+                        table.getColumn("name")?.setFilterValue(event.target.value)
                     }
                     className="max-w-sm"
                 />
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button>Add Member</Button>
+                        <Button>Add Item</Button>
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Title</DialogTitle>
                             <DialogDescription>Description</DialogDescription>
                         </DialogHeader>
-                        <MemberForm />
+                        <MyForm />
                     </DialogContent>
                 </Dialog>
                 <DropdownMenu>

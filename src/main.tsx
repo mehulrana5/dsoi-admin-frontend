@@ -7,7 +7,7 @@ import LoginForm from './pages/LoginPage.tsx';
 import Dashboard from './pages/Layout.tsx';
 import AdminsPage from './pages/AdminsPage/AdminsPage.tsx';
 import MembersPages from './pages/MembersPage/MembersPages.tsx';
-import FamiliesPage from './pages/FamiliesPage.tsx';
+import FamiliesPage from './pages/FamiliesPage/FamiliesPage.tsx';
 import LogsPage from './pages/LogsPage/LogsPage.tsx';
 import OrdersPage from './pages/OrdersPage/OrdersPage.tsx';
 import HomePage from './pages/HomePage.tsx';
@@ -15,6 +15,7 @@ import { OrdersTable } from './pages/OrdersPage/OrdersTable.tsx';
 import CreateOrder from './pages/OrdersPage/CreateOrder.tsx';
 import ScanOrder from './pages/OrdersPage/ScanOrder.tsx';
 import OrderInfo from './pages/OrdersPage/OrderInfo.tsx';
+import InventoryPage from './pages/InventoryPage/InventoryPage.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -27,6 +28,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path='/admins' element={<AdminsPage />} />
             <Route path='/members' element={<MembersPages />} />
             <Route path='/families' element={<FamiliesPage />} />
+            <Route path='/inventory' element={<InventoryPage />} />
             <Route path='/logs' element={<LogsPage />} />
             <Route path='/orders' element={<OrdersPage />}>
               <Route path='table' element={<OrdersTable />} />
