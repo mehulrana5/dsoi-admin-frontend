@@ -106,7 +106,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     const getHeaders = () => {
         return {
             'Content-Type': 'application/json',
-            'Authorization': localStorage.getItem("token") || ""
+            'Authorization': localStorage.getItem("token") || "Bearer null"
         };
     };
 
@@ -127,7 +127,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
 
             localStorage.setItem("id", data.admin.id);
             localStorage.setItem("userName", data.admin.userName);
-            localStorage.setItem("token", `Berear ${data.token}`);
+            localStorage.setItem("token", `Bearer ${data.token}`);
             localStorage.setItem("userType", data.admin.type);
             navigate('/home');
         } catch (error) {
