@@ -36,28 +36,47 @@ import {
 import { useContext } from "react"
 import { UserContext } from "@/context/UserContextProvider"
 
-const formSchema = z.object({
-    name_4677073376: z.string(),
-    name_4832911734: z.string(),
-    name_5411977556: z.string()
-});
 
-export default function AdminForm() {
+export default function AdminForm({ props }: any) {
+    const baseSchema = z.object({
+        name_4677073376: z.string(),
+        name_4832911734: z.string(),
+        name_5411977556: z.string(),
+    });
+
+    const formSchema = props ? baseSchema.partial() : baseSchema;
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-
     })
 
     const context = useContext(UserContext)
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            context?.addAdmin(values.name_4677073376, values.name_4832911734, values.name_5411977556).then((res) => {
-                if (res) {
-                    toast(<div>{res}</div>);
-                }
-            })
+            if (props) {
+                context?.updateAdmin(
+                    props._id,
+                    values.name_4832911734 || props.type,
+                    values.name_4677073376 || props.userName,
+                    values.name_5411977556 || ""
+                ).then((res) => {
+                    if (res) {
+                        toast(<div>{res}</div>);
+                    }
+                })
+            }
+            else {
+                context?.addAdmin(
+                    values.name_4677073376 || "",
+                    values.name_4832911734 || "",
+                    values.name_5411977556 || ""
+                ).then((res) => {
+                    if (res) {
+                        toast(<div>{res}</div>);
+                    }
+                })
+            }
         } catch (error) {
             console.error("Form submission error", error);
             toast.error("Failed to submit the form. Please try again.");
@@ -77,7 +96,9 @@ export default function AdminForm() {
                                 <Input
                                     placeholder="Username"
                                     type="text"
-                                    {...field} />
+                                    {...field}
+                                    defaultValue={props?.userName}
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -89,7 +110,7 @@ export default function AdminForm() {
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Type</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select onValueChange={field.onChange} defaultValue={props?.type}>
                                 <FormControl>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select type" />
@@ -114,7 +135,9 @@ export default function AdminForm() {
                     name="name_5411977556"
                     render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Password</FormLabel>
+                            <FormLabel>
+                                {props ? "New Password" : "Password"}
+                            </FormLabel>
                             <FormControl>
                                 <PasswordInput {...field} />
                             </FormControl>

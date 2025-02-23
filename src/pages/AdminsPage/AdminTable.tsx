@@ -35,18 +35,31 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import AdminForm from "./AdminForm"
 import { UserContext } from "@/context/UserContextProvider"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 export function AdminTable() {
+    const context = React.useContext(UserContext)
+
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
     const [pagination, setPagination] = React.useState<PaginationState>({
         pageIndex: 0, // Start from the first page
-        pageSize: 6   // Default rows per page
-      });
-    
-    const context = React.useContext(UserContext)
+        pageSize: (context?.screenSize ?? 0) > 768 ? 8 : 6   // Default rows per page
+    });
+    const [open, setOpen] = React.useState(false)
+    const [openDelete, setOpenDelete] = React.useState(false)
+    const [selectedAdmin, setSelectedAdmin] = React.useState<any>({})
 
     React.useEffect(() => {
         if (!context?.adminsData.data.length) {
@@ -61,12 +74,14 @@ export function AdminTable() {
         })
     }, [])
 
-    function handleUpdate(id: string) {
-        console.log(`update ${id}`);
+    function handleUpdate(param: any) {
+        setOpen(true)
+        setSelectedAdmin(param)
     }
 
-    function handleDelete(id: string) {
-        console.log(`delete ${id}`);
+    function handleDelete(param: any) {
+        setOpenDelete(true)
+        setSelectedAdmin(param);
     }
 
     type Admin = {
@@ -130,8 +145,8 @@ export function AdminTable() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleUpdate(row.original._id)}>Update</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDelete(row.original._id)}>Delete</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleUpdate(row.original)}>Update</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDelete(row.original)}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 )
@@ -173,12 +188,12 @@ export function AdminTable() {
                 />
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button>Add Admin</Button>
+                        <Button>Add</Button>
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Title</DialogTitle>
-                            <DialogDescription>Description</DialogDescription>
+                            <DialogTitle>Add Admin</DialogTitle>
+                            <DialogDescription></DialogDescription>
                         </DialogHeader>
                         <AdminForm />
                     </DialogContent>
@@ -284,6 +299,30 @@ export function AdminTable() {
                     </Button>
                 </div>
             </div>
+            <Dialog open={open} onOpenChange={setOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Update Admin</DialogTitle>
+                        <DialogDescription></DialogDescription>
+                    </DialogHeader>
+                    <AdminForm props={selectedAdmin} />
+                </DialogContent>
+            </Dialog>
+            <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete this account
+                            and remove your data from our servers.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => context?.deleteAdmin(selectedAdmin._id)}>Continue</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

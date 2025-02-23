@@ -16,6 +16,8 @@ interface UserContextType {
     getLogs: (type: string, query: string, skip: number, limit: number) => Promise<void>;
     getItems: (type: string, query: string, skip: number, limit: number) => Promise<void>;
     addAdmin: (type: string, userName: string, password: string) => Promise<string>;
+    updateAdmin: (id: string, type: string, userName: string, password: string) => Promise<string>;
+    deleteAdmin: (id: string) => Promise<void>;
     loading: string;
     BASE_URL: String;
     fontSize: string;
@@ -406,6 +408,58 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
+    const updateAdmin = async (id: string, type: string, userName: string, password: string) => {
+        setLoading("updateAdmin");
+        try {
+            let body: { userName?: string; type?: string; password?: string } = {}
+            if (type.length) {
+                body['type'] = type
+            }
+            if (userName.length) {
+                body['userName'] = userName
+            }
+            if (password.length) {
+                body['password'] = password
+            }
+            const res = await fetch(`${BASE_URL}/admins/${id}`, {
+                method: 'PUT',
+                headers: getHeaders(),
+                body: JSON.stringify(body)
+            });
+
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            return data.message;
+        } catch (error) {
+            console.error('Update Admin error:', error);
+            alert('Failed to Update Admin. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
+    const deleteAdmin = async (id: string) => {
+        setLoading("deleteAdmin");
+        try {
+            const res = await fetch(`${BASE_URL}/admins/${id}`, {
+                method: 'DELETE',
+                headers: getHeaders(),
+            });
+
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            alert(data.message);
+            return
+        } catch (error) {
+            console.error('Update Admin error:', error);
+            alert('Failed to Update Admin. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
     return (
         <UserContext.Provider value={{
             login,
@@ -419,6 +473,8 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             getLogs,
             getItems,
             addAdmin,
+            updateAdmin,
+            deleteAdmin,
             loading,
             adminsData,
             BASE_URL,
