@@ -7,7 +7,7 @@ const MIN_AMOUNT = import.meta.env.VITE_MIN_AMOUNT || 4000
 interface UserContextType {
     login: (credentials: { username: string; password: string }) => Promise<void>;
     logout: () => void;
-    getAdmins: (type: string, query: string) => Promise<void>;
+    getAdmins: (type: string, query: string, skip: number, limit: number) => Promise<void>;
     setFontSize: (size: string) => void;
     getMembers: (type: string, query: string, skip: number, limit: number) => Promise<void>;
     getOrders: (type: string, query: string, skip: number, limit: number) => Promise<void>;
@@ -15,6 +15,7 @@ interface UserContextType {
     updateOrder: (order_id: string, operation: string, query: { status: string }) => Promise<void>;
     getLogs: (type: string, query: string, skip: number, limit: number) => Promise<void>;
     getItems: (type: string, query: string, skip: number, limit: number) => Promise<void>;
+    addAdmin: (type: string, userName: string, password: string) => Promise<string>;
     loading: string;
     BASE_URL: String;
     fontSize: string;
@@ -95,7 +96,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     const [loading, setLoading] = useState<string>("");
     const [fontSize, setFontSize] = useState<string>("sm");
     const [screenSize, setScreenSize] = useState<number>(window.innerWidth);
-    
+
     const [adminsData, setAdminsData] = useState<{
         status: number,
         data: {
@@ -106,7 +107,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }[],
         count: number
     }>({ status: 0, data: [], count: 0 });
-    
+
     const [ordersData, setOrdersData] = useState<{
         status: number,
         data: {
@@ -216,13 +217,13 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         navigate('/');
     };
 
-    const getAdmins = async (type: string, query: string) => {
+    const getAdmins = async (type: string, query: string, skip: number, limit: number) => {
         setLoading("getAdmins");
         try {
             const res = await fetch(`${BASE_URL}/getAdmins`, {
                 method: 'POST',
                 headers: getHeaders(),
-                body: JSON.stringify({ type, query })
+                body: JSON.stringify({ type, query, skip, limit })
             });
 
             if (res.status === 401) return logout();
@@ -384,6 +385,27 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
+    const addAdmin = async (userName: string, type: string, password: string) => {
+        setLoading("addAdmin");
+        try {
+            const res = await fetch(`${BASE_URL}/admins`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ type, userName, password })
+            });
+
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            return data.message;
+        } catch (error) {
+            console.error('Add Admin error:', error);
+            alert('Failed to Add Admin. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
     return (
         <UserContext.Provider value={{
             login,
@@ -396,6 +418,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             updateOrder,
             getLogs,
             getItems,
+            addAdmin,
             loading,
             adminsData,
             BASE_URL,

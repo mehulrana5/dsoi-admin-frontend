@@ -33,6 +33,8 @@ import {
 import {
     PasswordInput
 } from "@/components/ui/password-input"
+import { useContext } from "react"
+import { UserContext } from "@/context/UserContextProvider"
 
 const formSchema = z.object({
     name_4677073376: z.string(),
@@ -47,14 +49,15 @@ export default function AdminForm() {
 
     })
 
+    const context = useContext(UserContext)
+
     function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            console.log(values);
-            toast(
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-                </pre>
-            );
+            context?.addAdmin(values.name_4677073376, values.name_4832911734, values.name_5411977556).then((res) => {
+                if (res) {
+                    toast(<div>{res}</div>);
+                }
+            })
         } catch (error) {
             console.error("Form submission error", error);
             toast.error("Failed to submit the form. Please try again.");
@@ -64,7 +67,6 @@ export default function AdminForm() {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-3xl mx-auto">
-
                 <FormField
                     control={form.control}
                     name="name_4677073376"
@@ -74,16 +76,13 @@ export default function AdminForm() {
                             <FormControl>
                                 <Input
                                     placeholder="Username"
-
                                     type="text"
                                     {...field} />
                             </FormControl>
-
                             <FormMessage />
                         </FormItem>
                     )}
                 />
-
                 <FormField
                     control={form.control}
                     name="name_4832911734"
@@ -97,12 +96,14 @@ export default function AdminForm() {
                                     </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                    <SelectItem value="m@example.com">m@example.com</SelectItem>
-                                    <SelectItem value="m@google.com">m@google.com</SelectItem>
-                                    <SelectItem value="m@support.com">m@support.com</SelectItem>
+                                    <SelectItem value="analyst">Analyst</SelectItem>
+                                    <SelectItem value="customerService">Customer Service</SelectItem>
+                                    <SelectItem value="bookKeeper">Book Keeper</SelectItem>
+                                    <SelectItem value="superAdmin">Super Admin</SelectItem>
+                                    <SelectItem value="barTender">Bar Tender</SelectItem>
+                                    <SelectItem value="inventoryManager">Inventory Manager</SelectItem>
                                 </SelectContent>
                             </Select>
-
                             <FormMessage />
                         </FormItem>
                     )}
@@ -117,7 +118,6 @@ export default function AdminForm() {
                             <FormControl>
                                 <PasswordInput {...field} />
                             </FormControl>
-
                             <FormMessage />
                         </FormItem>
                     )}

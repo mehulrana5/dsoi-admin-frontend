@@ -3,6 +3,7 @@ import * as React from "react"
 import {
     ColumnDef,
     ColumnFiltersState,
+    PaginationState,
     SortingState,
     VisibilityState,
     flexRender,
@@ -40,12 +41,16 @@ export function AdminTable() {
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
-
+    const [pagination, setPagination] = React.useState<PaginationState>({
+        pageIndex: 0, // Start from the first page
+        pageSize: 6   // Default rows per page
+      });
+    
     const context = React.useContext(UserContext)
 
     React.useEffect(() => {
         if (!context?.adminsData.data.length) {
-            context?.getAdmins("", "")
+            context?.getAdmins("", "", 0, 0)
         }
 
         setColumnVisibility({
@@ -54,7 +59,6 @@ export function AdminTable() {
             actions: true,
             createdAt: (context?.screenSize ?? 0) > 768,
         })
-
     }, [])
 
     function handleUpdate(id: string) {
@@ -146,11 +150,13 @@ export function AdminTable() {
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
+        onPaginationChange: setPagination,
         state: {
             sorting,
             columnFilters,
             columnVisibility,
             rowSelection,
+            pagination
         },
     })
 
