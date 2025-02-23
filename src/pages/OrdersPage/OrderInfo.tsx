@@ -55,7 +55,7 @@ function OrderInfo() {
                 <Label>Price</Label>
                 <Input value={OrderInfo[4]} readOnly />
                 <Label>Date</Label>
-                <Input value={new Date(order[0].orderDate).toLocaleDateString()} readOnly />
+                <Input value={new Date(order[0].orderDate).toLocaleDateString("en-GB")} readOnly />
             </CardContent>
             <CardFooter>
                 {

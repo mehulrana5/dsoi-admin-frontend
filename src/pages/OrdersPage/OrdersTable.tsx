@@ -13,17 +13,13 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+import { ArrowUpDown, ChevronDown } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
     DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
@@ -35,135 +31,77 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
+import { UserContext } from "@/context/UserContextProvider"
 
-const data: Payment[] = [
-    {
-        id: "m5gr84i9",
-        amount: 316,
-        status: "success",
-        email: "ken99@yahoo.com",
-    },
-    {
-        id: "3u1reuv4",
-        amount: 242,
-        status: "success",
-        email: "Abe45@gmail.com",
-    },
-    {
-        id: "derv1ws0",
-        amount: 837,
-        status: "processing",
-        email: "Monserrat44@gmail.com",
-    },
-    {
-        id: "5kma53ae",
-        amount: 874,
-        status: "success",
-        email: "Silas22@gmail.com",
-    },
-    {
-        id: "bhqecj4p",
-        amount: 721,
-        status: "failed",
-        email: "carmella@hotmail.com",
-    },
-]
-
-export type Payment = {
-    id: string
-    amount: number
-    status: "pending" | "processing" | "success" | "failed"
-    email: string
+export type Orders = {
+    _id: string,
+    member_id: string,
+    item_id: string,
+    itemInfo: string,
+    status: string,
+    orderDate: string
 }
 
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<Orders>[] = [
     {
-        id: "select",
-        header: ({ table }) => (
-            <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                aria-label="Select all"
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
-            />
-        ),
-        enableSorting: false,
-        enableHiding: false,
-    },
-    {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row }) => (
-            <div className="capitalize">{row.getValue("status")}</div>
-        ),
-    },
-    {
-        accessorKey: "email",
+        accessorKey: "member_id",
         header: ({ column }) => {
             return (
                 <Button
                     variant="ghost"
                     onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                 >
-                    Email
+                    Members
                     <ArrowUpDown />
                 </Button>
             )
         },
-        cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+        cell: ({ row }) => <div className="lowercase">{row.getValue("member_id")}</div>,
     },
     {
-        accessorKey: "amount",
-        header: () => <div className="text-right">Amount</div>,
-        cell: ({ row }) => {
-            const amount = parseFloat(row.getValue("amount"))
-
-            // Format the amount as a dollar amount
-            const formatted = new Intl.NumberFormat("en-US", {
-                style: "currency",
-                currency: "USD",
-            }).format(amount)
-
-            return <div className="text-right font-medium">{formatted}</div>
-        },
-    },
-    {
-        id: "actions",
-        enableHiding: false,
-        cell: ({ row }) => {
-            const payment = row.original
-
+        accessorKey: "itemInfo",
+        header: ({ column }) => {
             return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(payment.id)}
-                        >
-                            Copy payment ID
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>View customer</DropdownMenuItem>
-                        <DropdownMenuItem>View payment details</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Items
+                    <ArrowUpDown />
+                </Button>
             )
         },
+        cell: ({ row }) => <div className="lowercase">{row.getValue("itemInfo")}</div>,
+    },
+    {
+        accessorKey: "status",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Status
+                    <ArrowUpDown />
+                </Button>
+            )
+        },
+        cell: ({ row }) => <div className="lowercase">{row.getValue("status")}</div>,
+    },
+    {
+        accessorKey: "orderDate",
+        header: ({ column }) => {
+            return (
+                <Button
+                    variant="ghost"
+                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                >
+                    Order Date
+                    <ArrowUpDown />
+                </Button>
+            )
+        },
+        cell: ({ row }) => <div className="lowercase">{new Date(row.getValue("orderDate") as string).toLocaleDateString("en-GB")}</div>,
     },
 ]
 
@@ -172,6 +110,37 @@ export function OrdersTable() {
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
+
+    const context = React.useContext(UserContext)
+    const limit = (context?.screenSize ?? 0) > 768 ? 8 : 2;
+    const [totalPages, setTotalPages] = React.useState(0);
+    const [curpage, setCurPage] = React.useState(0);
+
+    React.useEffect(() => {
+        if (!context?.ordersData.data.length) {
+            context?.getOrders("", "", 0, limit)
+        }
+        setColumnVisibility({
+            _id: (context?.screenSize ?? 0) > 768,
+            member_id: (context?.screenSize ?? 0) > 768,
+            item_id: (context?.screenSize ?? 0) > 768,
+            itemInfo: true,
+            status: true,
+            orderDate: true,
+        })
+    }, [])
+
+    React.useEffect(() => {
+        const newCount = context?.ordersData?.count || 0;
+        setTotalPages(Math.ceil(newCount / limit));
+    }, [context?.ordersData]);
+
+    let data: Orders[] = context?.ordersData.data ?? []
+
+    data.forEach(e => {
+        e.itemInfo = e.itemInfo.split("|")[0]
+    });
+
 
     const table = useReactTable({
         data,
@@ -192,14 +161,28 @@ export function OrdersTable() {
         },
     })
 
+    function handleNext() {
+        if (curpage < totalPages - 1) {
+            setCurPage(curpage + 1);
+            context?.getOrders("", "", (curpage + 1) * limit, limit);
+        }
+    }
+
+    function handlePrev() {
+        if (curpage > 0) {
+            setCurPage(curpage - 1);
+            context?.getOrders("", "", (curpage - 1) * limit, limit);
+        }
+    }
+
     return (
         <div className="w-full">
             <div className="flex items-center py-4">
                 <Input
-                    placeholder="Filter emails..."
-                    value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+                    placeholder="Filter items..."
+                    value={(table.getColumn("itemInfo")?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
-                        table.getColumn("email")?.setFilterValue(event.target.value)
+                        table.getColumn("itemInfo")?.setFilterValue(event.target.value)
                     }
                     className="max-w-sm"
                 />
@@ -286,22 +269,8 @@ export function OrdersTable() {
                     {table.getFilteredRowModel().rows.length} row(s) selected.
                 </div>
                 <div className="space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Next
-                    </Button>
+                    <Button className="sm" variant="outline" onClick={handlePrev} disabled={curpage === 0}>Previous</Button>
+                    <Button className="sm" variant="outline" onClick={handleNext} disabled={curpage >= totalPages - 1}>Next</Button>
                 </div>
             </div>
         </div>

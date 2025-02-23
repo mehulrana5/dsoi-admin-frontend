@@ -20,7 +20,16 @@ interface UserContextType {
     fontSize: string;
     screenSize: number;
     MIN_AMOUNT: number;
-    adminsData: any[];
+    adminsData: {
+        status: number,
+        data: {
+            _id: string,
+            userName: string,
+            type: string,
+            createdAt: string
+        }[],
+        count: number
+    };
     ordersData: {
         status: number,
         data: {
@@ -84,10 +93,20 @@ interface UserContextProviderProps {
 // UserContextProvider component
 const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     const [loading, setLoading] = useState<string>("");
-    const [adminsData, setAdminsData] = useState<any[]>([]);
     const [fontSize, setFontSize] = useState<string>("sm");
     const [screenSize, setScreenSize] = useState<number>(window.innerWidth);
-
+    
+    const [adminsData, setAdminsData] = useState<{
+        status: number,
+        data: {
+            _id: string,
+            userName: string,
+            type: string,
+            createdAt: string
+        }[],
+        count: number
+    }>({ status: 0, data: [], count: 0 });
+    
     const [ordersData, setOrdersData] = useState<{
         status: number,
         data: {

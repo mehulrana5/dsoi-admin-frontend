@@ -44,7 +44,7 @@ export function AdminTable() {
     const context = React.useContext(UserContext)
 
     React.useEffect(() => {
-        if (!context?.adminsData.length) {
+        if (!context?.adminsData.data.length) {
             context?.getAdmins("", "")
         }
 
@@ -64,15 +64,15 @@ export function AdminTable() {
     function handleDelete(id: string) {
         console.log(`delete ${id}`);
     }
-    
+
     type Admin = {
-        _id: string
-        userName: string
-        type: "superAdmin" | "analyst" | "bookKeeper" | "customerService" | "barTender"
+        _id: string,
+        userName: string,
+        type: string,
         createdAt: string
     }
-    
-    const data: Admin[] = context?.adminsData ?? []
+
+    const data: Admin[] = context?.adminsData.data ?? []
 
     const columns: ColumnDef<Admin>[] = [
         {
@@ -110,10 +110,7 @@ export function AdminTable() {
                     </Button>
                 )
             },
-            cell: ({ row }) => {
-                const createdAt = new Date(row.getValue("createdAt")).toLocaleDateString()
-                return <div className="text-center">{createdAt}</div>
-            },
+            cell: ({ row }) => <div className="lowercase text-center">{new Date(row.getValue("createdAt") as string).toLocaleDateString("en-GB")}</div>,
         },
         {
             id: "actions",

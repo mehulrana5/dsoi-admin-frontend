@@ -143,7 +143,7 @@ export function MembersTable() {
                     </Button>
                 )
             },
-            cell: ({ row }) => <div className="text-center">{new Date(row.getValue("createdAt") as string).toLocaleDateString()}</div>,
+            cell: ({ row }) => <div className="lowercase">{new Date(row.getValue("createdAt") as string).toLocaleDateString("en-GB")}</div>,
         },
         {
             accessorKey: "wallet",
