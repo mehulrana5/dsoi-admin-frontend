@@ -10,8 +10,8 @@ interface UserContextType {
     getAdmins: (type: string, query: string) => Promise<void>;
     setFontSize: (size: string) => void;
     getMembers: (type: string, query: string, skip: number, limit: number) => Promise<void>;
-    getOrders: (type: string, query: string, id: string) => Promise<void>;
-    createOrder: (member_id: string, price: number, wallet: number) => Promise<void>;
+    getOrders: (type: string, query: string, skip: number, limit: number) => Promise<void>;
+    createOrder: (member_id: string, item_id: string, wallet: number, price: number) => Promise<void>;
     updateOrder: (order_id: string, operation: string, query: { status: string }) => Promise<void>;
     getLogs: (type: string, query: string, skip: number, limit: number) => Promise<void>;
     getItems: (type: string, query: string, skip: number, limit: number) => Promise<void>;
@@ -19,8 +19,20 @@ interface UserContextType {
     BASE_URL: String;
     fontSize: string;
     screenSize: number;
+    MIN_AMOUNT: number;
     adminsData: any[];
-    ordersData: any[];
+    ordersData: {
+        status: number,
+        data: {
+            _id: string,
+            member_id: string,
+            item_id: string,
+            itemInfo: string,
+            status: string,
+            orderDate: string
+        }[],
+        count: number
+    };
     membersData: {
         status: number,
         data: {
@@ -75,7 +87,19 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     const [adminsData, setAdminsData] = useState<any[]>([]);
     const [fontSize, setFontSize] = useState<string>("sm");
     const [screenSize, setScreenSize] = useState<number>(window.innerWidth);
-    const [ordersData, setOrdersData] = useState<any[]>([]);
+
+    const [ordersData, setOrdersData] = useState<{
+        status: number,
+        data: {
+            _id: string,
+            member_id: string,
+            item_id: string,
+            itemInfo: string,
+            status: string,
+            orderDate: string
+        }[],
+        count: number
+    }>({ status: 0, data: [], count: 0 });
 
     const [membersData, setMembersData] = useState<{
         status: number,
@@ -115,8 +139,9 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             qty: number,
             price: number
         }[],
-        count: number
-    }>({ status: 0, data: [], count: 0 });
+        count: number,
+        message: string
+    }>({ status: 0, data: [], count: 0, message: "" });
 
     const navigate = useNavigate();
 
@@ -219,13 +244,13 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
-    const getOrders = async (type: string, query: string, id: string) => {
+    const getOrders = async (type: string, query: string, skip: number, limit: number) => {
         setLoading("getOrders");
         try {
-            const res = await fetch(`${BASE_URL}/getOrders?orderId=${id}`, {
+            const res = await fetch(`${BASE_URL}/getOrders`, {
                 method: 'POST',
                 headers: getHeaders(),
-                body: JSON.stringify({ type, query })
+                body: JSON.stringify({ type, query, skip, limit })
             });
 
             if (res.status === 401) return logout();
@@ -241,7 +266,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
-    const createOrder = async (member_id: string, price: number, wallet: number) => {
+    const createOrder = async (member_id: string, item_id: string, wallet: number, price: number) => {
         setLoading("createOrder");
 
         if (wallet - price < MIN_AMOUNT) {
@@ -252,7 +277,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             const res = await fetch(`${BASE_URL}/orders`, {
                 method: "POST",
                 headers: getHeaders(),
-                body: JSON.stringify({ member_id, price })
+                body: JSON.stringify({ member_id, item_id })
             });
 
             if (res.status === 401) return logout();
@@ -361,6 +386,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             ordersData,
             logData,
             itemsData,
+            MIN_AMOUNT,
         }}>
             {children}
         </UserContext.Provider>

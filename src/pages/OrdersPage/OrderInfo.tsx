@@ -12,37 +12,40 @@ function OrderInfo() {
     const context = useContext(UserContext)
 
     useEffect(() => {
-        if (param?.id) {
-            context?.getOrders("", "", param?.id)
-        }
+        if (param?.id) { context?.getOrders("so", param?.id, 0, 1) }
     }, [])
 
-    // Handle loading state
     if (context?.loading === "getOrders") {
         return <div>Loading...</div>
     }
-
-    // Ensure ordersData is available and has items
-    const order = context?.ordersData?.[0]
-
-    // Handle case when no order data is available
-    if (!order) {
+    const order = context?.ordersData.data;
+    if (!order?.length) {
         return <div>No order found</div>
     }
+
+    const OrderInfo = order[0].itemInfo.split("|")
 
     return (
         <Card>
             <CardHeader>
-                <Badge variant={order?.status === "pending" ? "secondary" : "default"}>{order?.status}</Badge>
+                <div><Badge variant={order[0].status === "pending" ? "secondary" : "default"}>{order[0].status}</Badge></div>
             </CardHeader>
             <CardContent>
+                <Label>Name</Label>
+                <Input value={OrderInfo[0]} readOnly />
+                <Label>Brand</Label>
+                <Input value={OrderInfo[1]} readOnly />
+                <Label>Type</Label>
+                <Input value={OrderInfo[2]} readOnly />
+                <Label>Qty</Label>
+                <Input value={OrderInfo[3]} readOnly />
                 <Label>Price</Label>
-                <Input value={order?.price} readOnly />
+                <Input value={OrderInfo[4]} readOnly />
                 <Label>Date</Label>
-                <Input value={new Date(order?.orderDate).toLocaleDateString()} readOnly />
+                <Input value={new Date(order[0].orderDate).toLocaleDateString()} readOnly />
             </CardContent>
             <CardFooter>
-                <Button onClick={() => context.updateOrder(order?._id, "status", { status: "delivered" })}>Complete</Button>
+                <Button onClick={() => context?.updateOrder(order[0]._id, "status", { status: "delivered" })}>Complete</Button>
             </CardFooter>
         </Card>
     )

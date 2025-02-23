@@ -1,6 +1,13 @@
-import { Outlet } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { useState } from "react"
+import { OrdersTable } from "./OrdersTable"
+import CreateOrder from "./CreateOrder"
+import ScanOrder from "./ScanOrder"
+import { Card } from "@/components/ui/card"
 
 function OrdersPage() {
+    const [option, setOption] = useState<any>("table")
+
     return (
         <div style={{
             display: 'flex',
@@ -13,7 +20,14 @@ function OrdersPage() {
             margin: "auto",
         }}>
             <h1>Orders Page</h1>
-            <Outlet />
+            <Card className="flex gap-5 p-5">
+                <Button variant={option !== 'table' ? "default" : "secondary"} onClick={() => setOption("table")}>Table</Button>
+                <Button variant={option !== 'order' ? "default" : "secondary"} onClick={() => setOption("order")}>Order</Button>
+                <Button variant={option !== 'scan' ? "default" : "secondary"} onClick={() => setOption("scan")}>Scan</Button>
+            </Card>
+            {option === 'table' && <OrdersTable />}
+            {option === 'order' && <CreateOrder />}
+            {option === 'scan' && <ScanOrder />}
         </div>
     )
 }

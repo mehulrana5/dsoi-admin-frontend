@@ -37,14 +37,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { title: "Members", url: "/members", isActive: false },
     { title: "Families", url: "/families", isActive: false },
     { title: "Inventory", url: "/inventory", isActive: false },
-    {
-      title: "Orders", url: "/orders/table", isActive: false,
-      submenu: [
-        { title: "Orders Table", url: "/orders/table", isActive: false },
-        { title: "Create Order", url: "/orders/create", isActive: false },
-        { title: "Scan Order", url: "/orders/scan", isActive: false },
-      ],
-    },
+    { title: "Orders", url: "/orders", isActive: false, },
     { title: "Logs", url: "/logs", isActive: false },
   ], [])
 

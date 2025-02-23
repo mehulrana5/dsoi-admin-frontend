@@ -30,12 +30,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path='/families' element={<FamiliesPage />} />
             <Route path='/inventory' element={<InventoryPage />} />
             <Route path='/logs' element={<LogsPage />} />
-            <Route path='/orders' element={<OrdersPage />}>
-              <Route path='table' element={<OrdersTable />} />
-              <Route path='create' element={<CreateOrder />} />
-              <Route path='scan' element={<ScanOrder />} />
-              <Route path='scan/:id' element={<OrderInfo />} />
-            </Route>
+            <Route path='/orders' element={<OrdersPage />} />
           </Route>
         </Routes>
       </UserContextProvider>
