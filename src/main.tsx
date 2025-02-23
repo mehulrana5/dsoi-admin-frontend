@@ -11,10 +11,6 @@ import FamiliesPage from './pages/FamiliesPage/FamiliesPage.tsx';
 import LogsPage from './pages/LogsPage/LogsPage.tsx';
 import OrdersPage from './pages/OrdersPage/OrdersPage.tsx';
 import HomePage from './pages/HomePage.tsx';
-import { OrdersTable } from './pages/OrdersPage/OrdersTable.tsx';
-import CreateOrder from './pages/OrdersPage/CreateOrder.tsx';
-import ScanOrder from './pages/OrdersPage/ScanOrder.tsx';
-import OrderInfo from './pages/OrdersPage/OrderInfo.tsx';
 import InventoryPage from './pages/InventoryPage/InventoryPage.tsx';
 
 createRoot(document.getElementById('root')!).render(
