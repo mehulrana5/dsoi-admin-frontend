@@ -12,6 +12,7 @@ import LogsPage from './pages/LogsPage/LogsPage.tsx';
 import OrdersPage from './pages/OrdersPage/OrdersPage.tsx';
 import HomePage from './pages/HomePage.tsx';
 import InventoryPage from './pages/InventoryPage/InventoryPage.tsx';
+import OrderInfo from './pages/OrdersPage/OrderInfo.tsx';
 
 createRoot(document.getElementById('root')!).render(
   <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -27,6 +28,7 @@ createRoot(document.getElementById('root')!).render(
             <Route path='/inventory' element={<InventoryPage />} />
             <Route path='/logs' element={<LogsPage />} />
             <Route path='/orders' element={<OrdersPage />} />
+            <Route path='/orders/:id' element={<OrderInfo />} />
           </Route>
         </Routes>
       </UserContextProvider>
