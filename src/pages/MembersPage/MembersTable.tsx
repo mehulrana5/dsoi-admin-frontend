@@ -60,6 +60,7 @@ export function MembersTable() {
     const [queryText, setQueryText] = React.useState<string>("");
     const [searchResults, setSearchResults] = React.useState<any>([]);
     const [data, setData] = React.useState<Member[]>([]);
+    const [flag, setFlag] = React.useState(true)
 
     React.useEffect(() => {
         if (!context?.membersData.data.length) {
@@ -281,6 +282,39 @@ export function MembersTable() {
                         </Button>
                     </DialogContent>
                 </Dialog>
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button>Deactivate</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Deactivation Form</DialogTitle>
+                            <DialogDescription></DialogDescription>
+                        </DialogHeader>
+                        <Label>Contact No.</Label>
+                        <Input
+                            type="tel"
+                            name="smc"
+                            onChange={(e) => { setSmc(e.target.value) }}
+                            value={smc}
+                        />
+                        <Button onClick={() => { context?.deActivateMember(smc); }}>
+                            Submit
+                        </Button>
+                    </DialogContent>
+                </Dialog>
+                {
+                    flag ?
+                        <Button onClick={() => {
+                            context?.getSuspendedMembers("", "", 0, 0).then((res) => setData(res.data))
+                            setFlag(false)
+                        }}>Suspended</Button>
+                        :
+                        <Button onClick={() => {
+                            context?.getMembers("", "", 0, 0).then((res) => setData(res.data))
+                            setFlag(true)
+                        }}>Members</Button>
+                }
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">

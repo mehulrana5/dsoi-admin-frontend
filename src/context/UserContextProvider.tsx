@@ -9,7 +9,7 @@ interface UserContextType {
     logout: () => void;
     getAdmins: (type: string, query: string, skip: number, limit: number) => Promise<void>;
     setFontSize: (size: string) => void;
-    getMembers: (type: string, query: string, skip: number, limit: number) => Promise<void>;
+    getMembers: (type: string, query: string, skip: number, limit: number) => Promise<any>;
     getOrders: (type: string, query: string, skip: number, limit: number) => Promise<void>;
     createOrder: (member_id: string, item_id: string, wallet: number, price: number) => Promise<void>;
     updateOrder: (order_id: string, operation: string, query: { status: string }) => Promise<void>;
@@ -27,6 +27,21 @@ interface UserContextType {
     }) => Promise<string>;
     deleteMember: (id: string) => Promise<void>;
     activateMember: (contact: string) => Promise<void>;
+    getSuspendedMembers: (type: string, query: string, skip: number, limit: number) => Promise<{
+        status: number,
+        data: {
+            _id: string,
+            userName: string,
+            contact: number,
+            email: string,
+            wallet: number,
+            photo: string,
+            createdAt: string,
+            pendingAmount: number
+        }[],
+        count: number
+    }>
+    deActivateMember: (contact: string) => Promise<void>;
     loading: string;
     BASE_URL: String;
     fontSize: string;
@@ -89,6 +104,20 @@ interface UserContextType {
             type: string,
             qty: number,
             price: number
+        }[],
+        count: number
+    };
+    susData: {
+        status: number,
+        data: {
+            _id: string,
+            userName: string,
+            contact: number,
+            email: string,
+            wallet: number,
+            photo: string,
+            createdAt: string,
+            pendingAmount: number
         }[],
         count: number
     };
@@ -171,6 +200,21 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         count: number,
         message: string
     }>({ status: 0, data: [], count: 0, message: "" });
+
+    const [susData, setSusData] = useState<{
+        status: number,
+        data: {
+            _id: string,
+            userName: string,
+            contact: number,
+            email: string,
+            wallet: number,
+            photo: string,
+            createdAt: string,
+            pendingAmount: number
+        }[],
+        count: number
+    }>({ status: 0, data: [], count: 0 });
 
     const navigate = useNavigate();
 
@@ -584,6 +628,51 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
+    const getSuspendedMembers = async (type: string, query: string, skip: number, limit: number) => {
+        setLoading("getSuspendedMembers");
+        try {
+            const res = await fetch(`${BASE_URL}/getSuspendedMembers`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ type, query, skip, limit })
+            });
+
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            setSusData(data)
+            return data;
+        } catch (error) {
+            console.error('Get Suspended Members error:', error);
+            alert('Failed to Get Suspended Members. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
+    const deActivateMember = async (contact: string) => {
+        setLoading("deActivateMember");
+        try {
+            const res = await fetch(`${BASE_URL}/suspension`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ contact })
+            });
+
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            alert(data.message);
+            return
+        } catch (error) {
+            console.error('Deactivate Member error:', error);
+            alert('Failed to Deactivate Member. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
+
     return (
         <UserContext.Provider value={{
             login,
@@ -603,16 +692,19 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             updateMember,
             deleteMember,
             activateMember,
+            getSuspendedMembers,
+            deActivateMember,
             loading,
             adminsData,
             BASE_URL,
+            MIN_AMOUNT,
             fontSize,
             membersData,
             screenSize,
             ordersData,
             logData,
             itemsData,
-            MIN_AMOUNT,
+            susData
         }}>
             {children}
         </UserContext.Provider>
