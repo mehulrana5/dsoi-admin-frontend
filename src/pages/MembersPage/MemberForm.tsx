@@ -113,7 +113,7 @@ export default function MemberForm(props: any) {
                         <FormField
                             control={form.control}
                             name="contact"
-                            defaultValue={(props?.props?.contact).toString()}
+                            defaultValue={props?.props?.contact?.toString()}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Contact</FormLabel>

@@ -26,6 +26,7 @@ interface UserContextType {
         password?: string;
     }) => Promise<string>;
     deleteMember: (id: string) => Promise<void>;
+    activateMember: (contact: string) => Promise<void>;
     loading: string;
     BASE_URL: String;
     fontSize: string;
@@ -469,17 +470,22 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     const addMember = async (userName: string, password: string, contact: string, email: string, wallet: number, photo: File | null) => {
         setLoading("addMember");
         try {
-
             const formData = new FormData();
-            formData.append('userName', userName);
-            formData.append('password', password);
-            formData.append('contact', contact);
-            formData.append('email', email);
-            formData.append('wallet', wallet.toString());
+            formData.append("userName", userName);
+            formData.append("password", password);
+            formData.append("contact", contact);
+            formData.append("email", email);
+            formData.append("wallet", wallet.toString());
 
-            if (photo) { formData.append('photo', photo); }
+            if (photo) {
+                if (photo.size < 102400 || photo.size > 307200) {
+                    alert("Image size must be between 100KB and 300KB.");
+                    return;
+                }
+                formData.append("photo", photo);
+            }
 
-            const headers = { 'Authorization': localStorage.getItem("token") || "Bearer null" };
+            const headers = { Authorization: localStorage.getItem("token") || "Bearer null" };
 
             const res = await fetch(`${BASE_URL}/members`, {
                 method: 'POST',
@@ -492,8 +498,8 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             if (data.error) return alert(data.error.message);
             return data.message;
         } catch (error) {
-            console.error('Add Member error:', error);
-            alert('Failed to Add Member. Please try again.');
+            console.error("Add Member error:", error);
+            alert("Failed to Add Member. Please try again.");
         } finally {
             setLoading("");
         }
@@ -556,6 +562,28 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
+    const activateMember = async (contact: string) => {
+        setLoading("activateMember");
+        try {
+            const res = await fetch(`${BASE_URL}/suspension`, {
+                method: 'DELETE',
+                headers: getHeaders(),
+                body: JSON.stringify({ contact })
+            });
+
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            alert(data.message);
+            return
+        } catch (error) {
+            console.error('Activate Member error:', error);
+            alert('Failed to Activate Member. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
     return (
         <UserContext.Provider value={{
             login,
@@ -574,6 +602,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             addMember,
             updateMember,
             deleteMember,
+            activateMember,
             loading,
             adminsData,
             BASE_URL,

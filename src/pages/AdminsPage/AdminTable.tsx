@@ -179,7 +179,7 @@ export function AdminTable() {
         <div className="w-full">
             <div className="flex flex-wrap gap-2 items-center py-4">
                 <Input
-                    placeholder="Filter emails..."
+                    placeholder="Filter names..."
                     value={(table.getColumn("userName")?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
                         table.getColumn("userName")?.setFilterValue(event.target.value)

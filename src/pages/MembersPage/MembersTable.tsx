@@ -38,13 +38,12 @@ import { UserContext } from "@/context/UserContextProvider"
 import MemberForm from "./MemberForm"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { Label } from "@/components/ui/label"
+import Fuse from "fuse.js";
 
 export function MembersTable() {
 
     const context = React.useContext(UserContext)
-    const limit = 2;
-    const [totalPages, setTotalPages] = React.useState(0);
-    const [curpage, setCurPage] = React.useState(0);
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -57,6 +56,10 @@ export function MembersTable() {
     const [open, setOpen] = React.useState(false)
     const [openDelete, setOpenDelete] = React.useState(false)
     const [selectedMember, setSelectedMember] = React.useState<any>({})
+    const [smc, setSmc] = React.useState<any>("")
+    const [queryText, setQueryText] = React.useState<string>("");
+    const [searchResults, setSearchResults] = React.useState<any>([]);
+    const [data, setData] = React.useState<Member[]>([]);
 
     React.useEffect(() => {
         if (!context?.membersData.data.length) {
@@ -75,11 +78,6 @@ export function MembersTable() {
         })
     }, [])
 
-    React.useEffect(() => {
-        const newCount = context?.membersData?.count || 0;
-        setTotalPages(Math.ceil(newCount / limit));
-    }, [context?.membersData]);
-
     function handleUpdate(param: any) {
         setOpen(true)
         setSelectedMember(param)
@@ -90,7 +88,7 @@ export function MembersTable() {
         setSelectedMember(param);
     }
 
-    const data: Member[] = context?.membersData.data ?? []
+    // let data: Member[] = context?.membersData.data ?? []
 
     type Member = {
         _id: string
@@ -195,6 +193,26 @@ export function MembersTable() {
         },
     ]
 
+    React.useEffect(() => {
+        setData(context?.membersData.data ?? [])
+    }, [])
+
+    React.useEffect(() => {
+        if (!queryText) {
+            setSearchResults(context?.membersData.data);
+            return;
+        }
+        const fuse = new Fuse(context?.membersData?.data ?? [], {
+            keys: ["userName", "contact", "email"],
+            threshold: 0.3,
+        });
+        setSearchResults(fuse.search(queryText).map((result) => result.item));
+    }, [queryText, context])
+
+    React.useEffect(() => {
+        setData(searchResults)
+    }, [searchResults])
+
     const table = useReactTable({
         data,
         columns,
@@ -221,9 +239,12 @@ export function MembersTable() {
             <div className="flex flex-wrap gap-2 items-center py-4">
                 <Input
                     placeholder="Filter name..."
-                    value={(table.getColumn("userName")?.getFilterValue() as string) ?? ""}
-                    onChange={(event) =>
-                        table.getColumn("userName")?.setFilterValue(event.target.value)
+                    value={queryText}
+                    onChange={
+                        (event) => {
+                            // table.getColumn("userName")?.setFilterValue(event.target.value)
+                            setQueryText(event.target.value)
+                        }
                     }
                     className="max-w-sm"
                 />
@@ -237,6 +258,27 @@ export function MembersTable() {
                             <DialogDescription>Description</DialogDescription>
                         </DialogHeader>
                         <MemberForm props={{}} />
+                    </DialogContent>
+                </Dialog>
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button>Activate</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Activation Form</DialogTitle>
+                            <DialogDescription></DialogDescription>
+                        </DialogHeader>
+                        <Label>Contact No.</Label>
+                        <Input
+                            type="tel"
+                            name="smc"
+                            onChange={(e) => { setSmc(e.target.value) }}
+                            value={smc}
+                        />
+                        <Button onClick={() => { context?.activateMember(smc); }}>
+                            Submit
+                        </Button>
                     </DialogContent>
                 </Dialog>
                 <DropdownMenu>
@@ -317,9 +359,6 @@ export function MembersTable() {
                 </Table>
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
-                    Page {curpage + 1} of {totalPages}
-                </div>
                 <div className="space-x-2">
                     <Button
                         variant="outline"
