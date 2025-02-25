@@ -4,6 +4,7 @@ import * as React from "react"
 import {
     ColumnDef,
     ColumnFiltersState,
+    PaginationState,
     SortingState,
     VisibilityState,
     flexRender,
@@ -36,6 +37,7 @@ import {
 import { UserContext } from "@/context/UserContextProvider"
 import MemberForm from "./MemberForm"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 
 export function MembersTable() {
 
@@ -47,19 +49,27 @@ export function MembersTable() {
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
+    const [pagination, setPagination] = React.useState<PaginationState>({
+        pageIndex: 0, // Start from the first page
+        pageSize: (context?.screenSize ?? 0) > 768 ? 8 : 6   // Default rows per page
+    });
+
+    const [open, setOpen] = React.useState(false)
+    const [openDelete, setOpenDelete] = React.useState(false)
+    const [selectedMember, setSelectedMember] = React.useState<any>({})
 
     React.useEffect(() => {
         if (!context?.membersData.data.length) {
-            context?.getMembers("", "", 0, limit)
+            context?.getMembers("", "", 0, 0)
         }
         setColumnVisibility({
             userName: true,
             actions: true,
-            photo: true,
+            contact: true,
             wallet: (context?.screenSize ?? 0) > 768,
             pendingAmount: (context?.screenSize ?? 0) > 768,
-            contact: (context?.screenSize ?? 0) > 768,
             email: (context?.screenSize ?? 0) > 768,
+            photo: false,
             _id: false,
             createdAt: false,
         })
@@ -70,12 +80,14 @@ export function MembersTable() {
         setTotalPages(Math.ceil(newCount / limit));
     }, [context?.membersData]);
 
-    function handleUpdate(id: string) {
-        console.log(`update ${id}`);
+    function handleUpdate(param: any) {
+        setOpen(true)
+        setSelectedMember(param)
     }
 
-    function handleDelete(id: string) {
-        console.log(`delete ${id}`);
+    function handleDelete(param: any) {
+        setOpenDelete(true)
+        setSelectedMember(param);
     }
 
     const data: Member[] = context?.membersData.data ?? []
@@ -123,7 +135,7 @@ export function MembersTable() {
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
                     >
-                        Pending Amount
+                        Pending
                         <ArrowUpDown />
                     </Button>
                 )
@@ -174,8 +186,8 @@ export function MembersTable() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleUpdate(row.original._id)}>Update</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDelete(row.original._id)}>Delete</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleUpdate(row.original)}>Update</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDelete(row.original)}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 )
@@ -194,49 +206,37 @@ export function MembersTable() {
         getFilteredRowModel: getFilteredRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
+        onPaginationChange: setPagination,
         state: {
             sorting,
             columnFilters,
             columnVisibility,
             rowSelection,
+            pagination
         },
     })
-
-    function handleNext() {
-        if (curpage < totalPages - 1) {
-            setCurPage(curpage + 1);
-            context?.getMembers("", "", (curpage + 1) * limit, limit);
-        }
-    }
-
-    function handlePrev() {
-        if (curpage > 0) {
-            setCurPage(curpage - 1);
-            context?.getMembers("", "", (curpage - 1) * limit, limit);
-        }
-    }
 
     return (
         <div className="w-full">
             <div className="flex flex-wrap gap-2 items-center py-4">
                 <Input
-                    placeholder="Filter emails..."
-                    value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+                    placeholder="Filter name..."
+                    value={(table.getColumn("userName")?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
-                        table.getColumn("email")?.setFilterValue(event.target.value)
+                        table.getColumn("userName")?.setFilterValue(event.target.value)
                     }
                     className="max-w-sm"
                 />
                 <Dialog>
                     <DialogTrigger asChild>
-                        <Button>Add Member</Button>
+                        <Button>Add</Button>
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
                             <DialogTitle>Title</DialogTitle>
                             <DialogDescription>Description</DialogDescription>
                         </DialogHeader>
-                        <MemberForm />
+                        <MemberForm props={{}} />
                     </DialogContent>
                 </Dialog>
                 <DropdownMenu>
@@ -321,10 +321,48 @@ export function MembersTable() {
                     Page {curpage + 1} of {totalPages}
                 </div>
                 <div className="space-x-2">
-                    <Button className="sm" variant="outline" onClick={handlePrev} disabled={curpage === 0}>Previous</Button>
-                    <Button className="sm" variant="outline" onClick={handleNext} disabled={curpage >= totalPages - 1}>Next</Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                    >
+                        Next
+                    </Button>
                 </div>
             </div>
+            <Dialog open={open} onOpenChange={setOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Update Member</DialogTitle>
+                        <DialogDescription></DialogDescription>
+                    </DialogHeader>
+                    <MemberForm props={selectedMember} />
+                </DialogContent>
+            </Dialog>
+            <AlertDialog open={openDelete} onOpenChange={setOpenDelete}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete this account
+                            and remove your data from our servers.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => context?.deleteMember(selectedMember._id)}>Continue</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     )
 }

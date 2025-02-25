@@ -15,7 +15,6 @@ import {
 import {
     Form,
     FormControl,
-    FormDescription,
     FormField,
     FormItem,
     FormLabel,
@@ -27,32 +26,59 @@ import {
 import {
     PasswordInput
 } from "@/components/ui/password-input"
+import { useContext } from "react"
+import { UserContext } from "@/context/UserContextProvider"
 
-const formSchema = z.object({
-    userName: z.string(),
-    contact: z.number(),
-    email: z.string(),
-    wallet: z.number().min(4000),
-    pw: z.string(),
-    cpw: z.string(),
-    photo: z.string()
-});
 
-export default function MemberForm() {
+export default function MemberForm(props: any) {
 
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
+    const baseSchema = z.object({
+        userName: z.string().min(1),
+        contact: z.string().min(1).min(10).max(10),
+        email: z.string(),
+        photo: z.any().optional(),
+        password: z.string()
+    });
 
-    })
+    const formSchema = props ? baseSchema.partial() : baseSchema;
+
+    const context = useContext(UserContext)
+
+    const form = useForm<z.infer<typeof formSchema>>({ resolver: zodResolver(formSchema), })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            console.log(values);
-            toast(
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-                </pre>
-            );
+            if (props?.props?.userName) {
+                context?.updateMember(
+                    props?.props?._id,
+                    values.photo || props?.props?.photo,
+                    "updateAc",
+                    {
+                        userName: values.userName || "",
+                        contact: values.contact || "",
+                        email: values.email || "",
+                        password: values.password || "",
+                    }
+                ).then((res) => {
+                    if (res) {
+                        toast(<div>{res}</div>);
+                    }
+                })
+            }
+            else {
+                context?.addMember(
+                    values.userName || "",
+                    values.password || "",
+                    values.contact || "",
+                    values.email || "",
+                    4000,
+                    values.photo || null,
+                ).then((res) => {
+                    if (res) {
+                        toast(<div>{res}</div>);
+                    }
+                })
+            }
         } catch (error) {
             console.error("Form submission error", error);
             toast.error("Failed to submit the form. Please try again.");
@@ -61,63 +87,52 @@ export default function MemberForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="max-w-3xl mx-auto">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 max-w-3xl mx-auto">
+                <FormField
+                    control={form.control}
+                    name="userName"
+                    defaultValue={props?.props?.userName}
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Username</FormLabel>
+                            <FormControl>
+                                <Input
+                                    placeholder=""
 
-                <div className="grid grid-cols-12 gap-1">
+                                    type="text"
+                                    {...field} />
+                            </FormControl>
 
-                    <div className="col-span-12">
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
-                        <FormField
-                            control={form.control}
-                            name="userName"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>User name</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            placeholder=""
-
-                                            type="text"
-                                            {...field} />
-                                    </FormControl>
-
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-
-                </div>
-
-                <div className="grid grid-cols-12 gap-1">
-
+                <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-6">
-
                         <FormField
                             control={form.control}
                             name="contact"
+                            defaultValue={(props?.props?.contact).toString()}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Contact</FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder=""
-                                            type="number"
-                                            {...field}
-                                            onChange={(e) => field.onChange(Number(e.target.value))} />
+                                            type="text"
+                                            {...field} />
                                     </FormControl>
-
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
                     </div>
-
                     <div className="col-span-6">
-
                         <FormField
                             control={form.control}
                             name="email"
+                            defaultValue={props?.props?.email}
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Email</FormLabel>
@@ -134,41 +149,34 @@ export default function MemberForm() {
                             )}
                         />
                     </div>
-
                 </div>
-
-                <div className="grid grid-cols-12 gap-1">
-
+                <div className="grid grid-cols-12 gap-4">
                     <div className="col-span-6">
-
                         <FormField
                             control={form.control}
-                            name="wallet"
-                            render={({ field }) => (
+                            name="photo"
+                            render={() => (
                                 <FormItem>
-                                    <FormLabel>Wallet</FormLabel>
+                                    <FormLabel>Image</FormLabel>
                                     <FormControl>
                                         <Input
-                                            placeholder=""
-                                            type="number"
-                                            {...field}
-                                            onChange={(e) => field.onChange(Number(e.target.value))} />
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(event) => {
+                                                const file = event.target.files?.[0];
+                                                form.setValue("photo", file, { shouldValidate: true });
+                                            }}
+                                        />
                                     </FormControl>
-
                                     <FormMessage />
                                 </FormItem>
                             )}
                         />
                     </div>
-                </div>
-
-                <div className="grid grid-cols-12 gap-1">
-
                     <div className="col-span-6">
-
                         <FormField
                             control={form.control}
-                            name="pw"
+                            name="password"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Password</FormLabel>
@@ -180,57 +188,8 @@ export default function MemberForm() {
                                 </FormItem>
                             )}
                         />
-
                     </div>
-
-                    <div className="col-span-6">
-
-                        <FormField
-                            control={form.control}
-                            name="cpw"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Confirm Password</FormLabel>
-                                    <FormControl>
-                                        <PasswordInput {...field} />
-                                    </FormControl>
-
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-
-                    </div>
-
                 </div>
-
-                <FormField
-                    control={form.control}
-                    name="photo"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Upload Image</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder=""
-                                    type="file"
-                                    accept="image/*"
-                                    {...field}
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file && !file.type.startsWith('image/')) {
-                                            toast.error("Only image files are allowed.");
-                                            e.target.value = "";
-                                        } else {
-                                            field.onChange(e);
-                                        }
-                                    }} />
-                            </FormControl>
-                            <FormDescription>Size should be 200 - 500 KB</FormDescription>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
                 <Button type="submit">Submit</Button>
             </form>
         </Form>

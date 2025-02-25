@@ -18,6 +18,14 @@ interface UserContextType {
     addAdmin: (type: string, userName: string, password: string) => Promise<string>;
     updateAdmin: (id: string, type: string, userName: string, password: string) => Promise<string>;
     deleteAdmin: (id: string) => Promise<void>;
+    addMember: (userName: string, password: string, contact: string, email: string, wallet: number, photo: File | null) => Promise<string>;
+    updateMember: (id: string, photo: File | null, action: string, updates: {
+        userName?: string;
+        contact?: string;
+        email?: string;
+        password?: string;
+    }) => Promise<string>;
+    deleteMember: (id: string) => Promise<void>;
     loading: string;
     BASE_URL: String;
     fontSize: string;
@@ -89,9 +97,7 @@ interface UserContextType {
 export const UserContext = createContext<UserContextType | undefined>(undefined);
 
 // Define props for UserContextProvider
-interface UserContextProviderProps {
-    children: ReactNode;
-}
+interface UserContextProviderProps { children: ReactNode; }
 
 // UserContextProvider component
 const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
@@ -453,8 +459,98 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             alert(data.message);
             return
         } catch (error) {
-            console.error('Update Admin error:', error);
-            alert('Failed to Update Admin. Please try again.');
+            console.error('Delete Admin error:', error);
+            alert('Failed to Delete Admin. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
+    const addMember = async (userName: string, password: string, contact: string, email: string, wallet: number, photo: File | null) => {
+        setLoading("addMember");
+        try {
+
+            const formData = new FormData();
+            formData.append('userName', userName);
+            formData.append('password', password);
+            formData.append('contact', contact);
+            formData.append('email', email);
+            formData.append('wallet', wallet.toString());
+
+            if (photo) { formData.append('photo', photo); }
+
+            const headers = { 'Authorization': localStorage.getItem("token") || "Bearer null" };
+
+            const res = await fetch(`${BASE_URL}/members`, {
+                method: 'POST',
+                headers: headers,
+                body: formData
+            });
+
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            return data.message;
+        } catch (error) {
+            console.error('Add Member error:', error);
+            alert('Failed to Add Member. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
+    const updateMember = async (id: string, photo: File | null, action: string, updates: {
+        userName?: string;
+        contact?: string;
+        email?: string;
+        password?: string;
+    }) => {
+        setLoading("updateMember");
+        try {
+            const formData = new FormData();
+            formData.append('id', id);
+            if (photo) formData.append('photo', photo);
+            if (action) formData.append('action', action);
+            if (!updates.password?.length) delete updates.password
+
+            formData.append('updates', JSON.stringify(updates));
+
+            const headers = { 'Authorization': localStorage.getItem("token") || "Bearer null" };
+
+            const res = await fetch(`${BASE_URL}/members`, {
+                method: 'PUT',
+                headers: headers,
+                body: formData
+            });
+
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            return data.message;
+        } catch (error) {
+            console.error('Add Member error:', error);
+            alert('Failed to Add Member. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
+    const deleteMember = async (id: string) => {
+        setLoading("deleteMember");
+        try {
+            const res = await fetch(`${BASE_URL}/member/${id}`, {
+                method: 'DELETE',
+                headers: getHeaders(),
+            });
+
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            alert(data.message);
+            return
+        } catch (error) {
+            console.error('Delete Member error:', error);
+            alert('Failed to Delete Member. Please try again.');
         } finally {
             setLoading("");
         }
@@ -475,6 +571,9 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             addAdmin,
             updateAdmin,
             deleteAdmin,
+            addMember,
+            updateMember,
+            deleteMember,
             loading,
             adminsData,
             BASE_URL,
