@@ -23,30 +23,56 @@ import {
 import {
     Input
 } from "@/components/ui/input"
+import { useContext } from "react"
+import { UserContext } from "@/context/UserContextProvider"
 
-const formSchema = z.object({
-    name_2612885117: z.string().min(1),
-    name_3654274585: z.string().min(1),
-    name_6117841798: z.string().min(1),
-    name_8539793395: z.number().min(0),
-    name_6704273196: z.number().min(0)
-});
+export default function MyForm(props: any) {
 
-export default function MyForm() {
-
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-
+    const baseSchema = z.object({
+        itemName: z.string().min(1),
+        brand: z.string().min(1),
+        type: z.string().min(1),
+        qty: z.string().min(1),
+        price: z.string().min(1)
     })
+
+    const formSchema = props ? baseSchema.partial() : baseSchema;
+
+    const context = useContext(UserContext)
+
+    const form = useForm<z.infer<typeof formSchema>>({ resolver: zodResolver(formSchema), })
 
     function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            console.log(values);
-            toast(
-                <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                    <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-                </pre>
-            );
+            if (props?.props?.name) {
+                context?.updateItem(
+                    props?.props?._id,
+                    {
+                        name: values.itemName || props?.props?.name,
+                        brand: values.brand || props?.props?.brand,
+                        type: values.type || props?.props?.type,
+                        qty: values.qty || props?.props?.qty,
+                        price: values.price || props?.props?.price
+                    }
+                ).then((res) => {
+                    if (res) {
+                        toast(<div>{res}</div>);
+                    }
+                })
+            }
+            else {
+                context?.addItem(
+                    values.itemName || "",
+                    values.brand || "",
+                    values.type || "",
+                    values.qty || "",
+                    values.price || ""
+                ).then((res) => {
+                    if (res) {
+                        toast(<div>{res}</div>);
+                    }
+                })
+            }
         } catch (error) {
             console.error("Form submission error", error);
             toast.error("Failed to submit the form. Please try again.");
@@ -59,14 +85,14 @@ export default function MyForm() {
 
                 <FormField
                     control={form.control}
-                    name="name_2612885117"
+                    name="itemName"
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Name</FormLabel>
                             <FormControl>
                                 <Input
                                     placeholder=""
-
+                                    defaultValue={props?.props?.name}
                                     type="text"
                                     {...field} />
                             </FormControl>
@@ -78,14 +104,14 @@ export default function MyForm() {
 
                 <FormField
                     control={form.control}
-                    name="name_3654274585"
+                    name="brand"
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Brand</FormLabel>
                             <FormControl>
                                 <Input
                                     placeholder=""
-
+                                    defaultValue={props?.props?.brand}
                                     type="text"
                                     {...field} />
                             </FormControl>
@@ -97,14 +123,14 @@ export default function MyForm() {
 
                 <FormField
                     control={form.control}
-                    name="name_6117841798"
+                    name="type"
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Type</FormLabel>
                             <FormControl>
                                 <Input
                                     placeholder=""
-
+                                    defaultValue={props?.props?.type}
                                     type="text"
                                     {...field} />
                             </FormControl>
@@ -120,14 +146,14 @@ export default function MyForm() {
 
                         <FormField
                             control={form.control}
-                            name="name_8539793395"
+                            name="qty"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Quantity</FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder=""
-
+                                            defaultValue={props?.props?.qty}
                                             type="number"
                                             {...field} />
                                     </FormControl>
@@ -142,14 +168,14 @@ export default function MyForm() {
 
                         <FormField
                             control={form.control}
-                            name="name_6704273196"
+                            name="price"
                             render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Price</FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder=""
-
+                                            defaultValue={props?.props?.price}
                                             type="number"
                                             {...field} />
                                     </FormControl>

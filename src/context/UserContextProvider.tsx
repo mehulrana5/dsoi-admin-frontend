@@ -7,17 +7,24 @@ const MIN_AMOUNT = import.meta.env.VITE_MIN_AMOUNT || 4000
 interface UserContextType {
     login: (credentials: { username: string; password: string }) => Promise<void>;
     logout: () => void;
-    getAdmins: (type: string, query: string, skip: number, limit: number) => Promise<void>;
     setFontSize: (size: string) => void;
-    getMembers: (type: string, query: string, skip: number, limit: number) => Promise<any>;
+    getLogs: (type: string, query: string, skip: number, limit: number) => Promise<void>;
+
     getOrders: (type: string, query: string, skip: number, limit: number) => Promise<void>;
     createOrder: (member_id: string, item_id: string, wallet: number, price: number) => Promise<void>;
     updateOrder: (order_id: string, operation: string, query: { status: string }) => Promise<void>;
-    getLogs: (type: string, query: string, skip: number, limit: number) => Promise<void>;
+
     getItems: (type: string, query: string, skip: number, limit: number) => Promise<void>;
+    addItem: (name: string, brand: string, type: string, qty: string, price: string) => Promise<string>;
+    updateItem: (id: string, updates: { name?: string; brand?: string; type?: string; qty?: number; price?: number }) => Promise<string>;
+    deleteItem: (id: string) => Promise<void>;
+
+    getAdmins: (type: string, query: string, skip: number, limit: number) => Promise<void>;
     addAdmin: (type: string, userName: string, password: string) => Promise<string>;
     updateAdmin: (id: string, type: string, userName: string, password: string) => Promise<string>;
     deleteAdmin: (id: string) => Promise<void>;
+
+    getMembers: (type: string, query: string, skip: number, limit: number) => Promise<any>;
     addMember: (userName: string, password: string, contact: string, email: string, wallet: number, photo: File | null) => Promise<string>;
     updateMember: (id: string, photo: File | null, action: string, updates: {
         userName?: string;
@@ -42,10 +49,12 @@ interface UserContextType {
         count: number
     }>
     deActivateMember: (contact: string) => Promise<void>;
+
     getFamily: (type: string, query: string, skip: number, limit: number) => Promise<any>;
     addFamily: (member_id: string, type: string, name: string, dob: string, photo: File | null) => Promise<string>;
     updateFamily: (id: string, type: string, name: string, dob: string, photo: File | null) => Promise<string>;
     deleteFamily: (id: string) => Promise<void>;
+
     loading: string;
     BASE_URL: String;
     fontSize: string;
@@ -377,7 +386,6 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
 
     const getLogs = async (type: string, query: string, skip: number, limit: number) => {
         try {
-            console.log("running");
 
             const res = await fetch(`${BASE_URL}/getLogs`, {
                 method: "POST",
@@ -393,7 +401,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             setLogData(data.result)
 
         } catch (error) {
-            console.log("get logs error:", error);
+            console.error("get logs error:", error);
             alert("Failed to get Logs.");
         }
     }
@@ -417,6 +425,68 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         } catch (error) {
             console.error('Get items error:', error);
             alert('Failed to fetch items. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
+    const addItem = async (name: string, brand: string, type: string, qty: string, price: string) => {
+        setLoading("addItem");
+        try {
+            const res = await fetch(`${BASE_URL}/item`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ name, brand, type, qty, price })
+            });
+
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            return data.message;
+        } catch (error) {
+            console.error('Add Item error:', error);
+            alert('Failed to Add Item. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
+    const updateItem = async (id: string, updates: { name?: string; brand?: string; type?: string; qty?: number; price?: number }) => {
+        setLoading("updateItem");
+        try {
+            const res = await fetch(`${BASE_URL}/item?id=${id}`, {
+                method: 'PUT',
+                headers: getHeaders(),
+                body: JSON.stringify(updates)
+            });
+
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            return data.message;
+        } catch (error) {
+            console.error('Update Item error:', error);
+            alert('Failed to Update Item. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
+    const deleteItem = async (id: string) => {
+        setLoading("deleteItem");
+        try {
+            const res = await fetch(`${BASE_URL}/item?id=${id}`, {
+                method: 'DELETE',
+                headers: getHeaders(),
+            });
+
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            alert(data.message);
+        } catch (error) {
+            console.error('Delete Item error:', error);
+            alert('Failed to Delete Item. Please try again.');
         } finally {
             setLoading("");
         }
@@ -809,11 +879,12 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
+
+
     return (
         <UserContext.Provider value={{
             login,
             logout,
-            getAdmins,
             setFontSize,
             getMembers,
             getOrders,
@@ -821,6 +892,10 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             updateOrder,
             getLogs,
             getItems,
+            addItem,
+            updateItem,
+            deleteItem,
+            getAdmins,
             addAdmin,
             updateAdmin,
             deleteAdmin,

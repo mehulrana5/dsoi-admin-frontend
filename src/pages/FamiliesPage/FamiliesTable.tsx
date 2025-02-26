@@ -57,100 +57,7 @@ export function FamilyTable() {
     const [selectedMember, setSelectedMember] = React.useState<any>({})
     const [queryText, setQueryText] = React.useState<string>("");
     const [searchResults, setSearchResults] = React.useState<any>([]);
-    const [data, setData] = React.useState<Family[]>(
-        [
-            {
-                "_id": "67bc18263a4521423e554160",
-                "member_id": "67bc11030ed18c083a719f8d",
-                "type": "spouse",
-                "name": "Shreya Rai",
-                "dob": "1990-05-15T00:00:00.000Z",
-                "photo": "https://res.cloudinary.com/dlbomnl4i/image/upload/v1740380198/udzh1u94rfzsluj1ze4s.jpg",
-                "memberInfo": "Aditiya Rai|1234567890|1@gmail.com"
-            },
-            {
-                "_id": "67bc18603a4521423e554166",
-                "member_id": "67bc11030ed18c083a719f8d",
-                "type": "dependent",
-                "name": "Aryan Rai",
-                "dob": "2015-07-12T00:00:00.000Z",
-                "photo": "https://res.cloudinary.com/dlbomnl4i/image/upload/v1740380255/eelofrirwxvr2zbwet9r.jpg",
-                "memberInfo": "Aditiya Rai|1234567890|1@gmail.com"
-            },
-            {
-                "_id": "67bc18823a4521423e55416c",
-                "member_id": "67bc13e13a4521423e55412a",
-                "type": "spouse",
-                "name": "Neha Sharma",
-                "dob": "2000-09-10T00:00:00.000Z",
-                "photo": "https://res.cloudinary.com/dlbomnl4i/image/upload/v1740380290/s8s2tggxxs9wj0eveloh.jpg",
-                "memberInfo": "Rohan Sharma|1234567892|2@gmail.com"
-            },
-            {
-                "_id": "67bc18a63a4521423e554172",
-                "member_id": "67bc13e13a4521423e55412a",
-                "type": "dependent",
-                "name": "Ishaan Sharma",
-                "dob": "2018-03-21T00:00:00.000Z",
-                "photo": "https://res.cloudinary.com/dlbomnl4i/image/upload/v1740380326/jwabgpbsy2l0w1fb3zaq.jpg",
-                "memberInfo": "Rohan Sharma|1234567892|2@gmail.com"
-            },
-            {
-                "_id": "67bc18c23a4521423e554178",
-                "member_id": "67bc14003a4521423e554130",
-                "type": "spouse",
-                "name": "Priya Iyer",
-                "dob": "1985-12-20T00:00:00.000Z",
-                "photo": "https://res.cloudinary.com/dlbomnl4i/image/upload/v1740380354/nauynrevc8gkeuud3faq.jpg",
-                "memberInfo": "Karthik Iyer|1234567893|3@gmail.com"
-            },
-            {
-                "_id": "67bc18e13a4521423e55417e",
-                "member_id": "67bc14003a4521423e554130",
-                "type": "dependent",
-                "name": "Advait Iyer",
-                "dob": "2012-11-05T00:00:00.000Z",
-                "photo": "https://res.cloudinary.com/dlbomnl4i/image/upload/v1740380384/r0v5oj7tnpswtu0khc2a.jpg",
-                "memberInfo": "Karthik Iyer|1234567893|3@gmail.com"
-            },
-            {
-                "_id": "67bc19003a4521423e554184",
-                "member_id": "67bc140f3a4521423e554136",
-                "type": "spouse",
-                "name": "Anjali Chauhan",
-                "dob": "1995-03-25T00:00:00.000Z",
-                "photo": "https://res.cloudinary.com/dlbomnl4i/image/upload/v1740380415/xgp7mufm7yudvcvj7rie.jpg",
-                "memberInfo": "Vikram Chauhan|1234567894|4@gmail.com"
-            },
-            {
-                "_id": "67bc19143a4521423e55418a",
-                "member_id": "67bc140f3a4521423e554136",
-                "type": "dependent",
-                "name": "Vivaan Chauhan",
-                "dob": "2019-09-14T00:00:00.000Z",
-                "photo": "https://res.cloudinary.com/dlbomnl4i/image/upload/v1740380435/hs5svlyaq2pnjofn2eyy.jpg",
-                "memberInfo": "Vikram Chauhan|1234567894|4@gmail.com"
-            },
-            {
-                "_id": "67bc193e3a4521423e554190",
-                "member_id": "67bc14263a4521423e55413c",
-                "type": "spouse",
-                "name": "Megha Verma",
-                "dob": "1988-07-18T00:00:00.000Z",
-                "photo": "https://res.cloudinary.com/dlbomnl4i/image/upload/v1740380477/q9k4tgiel5fbcnq6jrmo.jpg",
-                "memberInfo": "Sandeep Verma|1234567895|5@gmail.com"
-            },
-            {
-                "_id": "67bc19533a4521423e554196",
-                "member_id": "67bc14263a4521423e55413c",
-                "type": "dependent",
-                "name": "Aarav Verma",
-                "dob": "2014-02-28T00:00:00.000Z",
-                "photo": "https://res.cloudinary.com/dlbomnl4i/image/upload/v1740380498/az3zw7uyebi4y3ynonir.jpg",
-                "memberInfo": "Sandeep Verma|1234567895|5@gmail.com"
-            }
-        ]
-    );
+    const [data, setData] = React.useState<Family[]>([]);
 
     type Family = {
         _id: string,
@@ -474,7 +381,6 @@ export function FamilyTable() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-
         </div>
     )
 }

@@ -93,7 +93,7 @@ export default function FamilyForm(props: any) {
                         <div>
                             <Label>Member Contact</Label>
                             <Input
-                                type="text"
+                                type="number"
                                 placeholder="Enter Contact Number"
                                 value={mc}
                                 onChange={(e) => setMc(e.target.value)}
