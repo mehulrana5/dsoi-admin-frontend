@@ -91,11 +91,15 @@ export function LogsTable() {
             accessorKey: "timeStamp",
             header: "Time Stamp",
             cell: ({ row }) => (
-                <div>
-                    {new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(row.getValue("timeStamp") as string))}{" "}
-                    {new Date(row.getValue("timeStamp") as string).toLocaleTimeString("en-GB")}
+                <div className="text-center">
+                    {new Date(row.getValue("timeStamp") as string).toLocaleDateString("en-GB")}
                 </div>
             ),
+            sortingFn: (rowA, rowB, columnId) => {
+                const dateA = new Date(rowA.getValue(columnId) as string).getTime();
+                const dateB = new Date(rowB.getValue(columnId) as string).getTime();
+                return dateA - dateB;
+            }
         },
     ];
 
@@ -145,7 +149,7 @@ export function LogsTable() {
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => (
-                                    <TableHead key={header.id}>
+                                    <TableHead className="text-center" key={header.id}>
                                         {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
                                     </TableHead>
                                 ))}

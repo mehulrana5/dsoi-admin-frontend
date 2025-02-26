@@ -71,7 +71,14 @@ export const columns: ColumnDef<Orders>[] = [
                 </Button>
             )
         },
-        cell: ({ row }) => <div className="lowercase">{row.getValue("itemInfo")}</div>,
+        cell: ({ row }) => {
+            let data: string
+            data = row.getValue("itemInfo");
+            let formattedData = data.replace(/\|/g, " ");
+            return (
+                <div>{formattedData}</div>
+            )
+        },
     },
     {
         accessorKey: "status",
@@ -101,7 +108,16 @@ export const columns: ColumnDef<Orders>[] = [
                 </Button>
             )
         },
-        cell: ({ row }) => <div className="lowercase">{new Date(row.getValue("orderDate") as string).toLocaleDateString("en-GB")}</div>,
+        cell: ({ row }) => (
+            <div className="text-center">
+                {new Date(row.getValue("orderDate") as string).toLocaleDateString("en-GB")}
+            </div>
+        ),
+        sortingFn: (rowA, rowB, columnId) => {
+            const dateA = new Date(rowA.getValue(columnId) as string).getTime();
+            const dateB = new Date(rowB.getValue(columnId) as string).getTime();
+            return dateA - dateB;
+        }
     },
 ]
 

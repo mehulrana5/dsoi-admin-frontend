@@ -129,7 +129,16 @@ export function AdminTable() {
                     </Button>
                 )
             },
-            cell: ({ row }) => <div className="lowercase text-center">{new Date(row.getValue("createdAt") as string).toLocaleDateString("en-GB")}</div>,
+            cell: ({ row }) => (
+                <div className="text-center">
+                    {new Date(row.getValue("createdAt") as string).toLocaleDateString("en-GB")}
+                </div>
+            ),
+            sortingFn: (rowA, rowB, columnId) => {
+                const dateA = new Date(rowA.getValue(columnId) as string).getTime();
+                const dateB = new Date(rowB.getValue(columnId) as string).getTime();
+                return dateA - dateB;
+            }
         },
         {
             id: "actions",

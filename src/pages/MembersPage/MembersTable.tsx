@@ -154,7 +154,16 @@ export function MembersTable() {
                     </Button>
                 )
             },
-            cell: ({ row }) => <div className="lowercase">{new Date(row.getValue("createdAt") as string).toLocaleDateString("en-GB")}</div>,
+            cell: ({ row }) => (
+                <div className="text-center">
+                    {new Date(row.getValue("createdAt") as string).toLocaleDateString("en-GB")}
+                </div>
+            ),
+            sortingFn: (rowA, rowB, columnId) => {
+                const dateA = new Date(rowA.getValue(columnId) as string).getTime();
+                const dateB = new Date(rowB.getValue(columnId) as string).getTime();
+                return dateA - dateB;
+            }
         },
         {
             accessorKey: "wallet",
@@ -205,7 +214,7 @@ export function MembersTable() {
         }
         const fuse = new Fuse(context?.membersData?.data ?? [], {
             keys: ["userName", "contact", "email"],
-            threshold: 0.3,
+            threshold: 0.5,
         });
         setSearchResults(fuse.search(queryText).map((result) => result.item));
     }, [queryText, context])
@@ -231,7 +240,7 @@ export function MembersTable() {
             columnFilters,
             columnVisibility,
             rowSelection,
-            pagination
+            pagination,
         },
     })
 
@@ -242,10 +251,7 @@ export function MembersTable() {
                     placeholder="Filter name..."
                     value={queryText}
                     onChange={
-                        (event) => {
-                            // table.getColumn("userName")?.setFilterValue(event.target.value)
-                            setQueryText(event.target.value)
-                        }
+                        (event) => { setQueryText(event.target.value) }
                     }
                     className="max-w-sm"
                 />

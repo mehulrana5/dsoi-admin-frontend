@@ -1,3 +1,5 @@
+import { FamilyTable } from "./FamiliesTable"
+
 function FamiliesPage() {
     return (
         <div style={{
@@ -11,6 +13,7 @@ function FamiliesPage() {
             margin: "auto",
         }}>
             <h1>Families Page</h1>
+            <FamilyTable />
         </div>
     )
 }

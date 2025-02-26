@@ -42,6 +42,10 @@ interface UserContextType {
         count: number
     }>
     deActivateMember: (contact: string) => Promise<void>;
+    getFamily: (type: string, query: string, skip: number, limit: number) => Promise<any>;
+    addFamily: (member_id: string, type: string, name: string, dob: string, photo: File | null) => Promise<string>;
+    updateFamily: (id: string, type: string, name: string, dob: string, photo: File | null) => Promise<string>;
+    deleteFamily: (id: string) => Promise<void>;
     loading: string;
     BASE_URL: String;
     fontSize: string;
@@ -118,6 +122,19 @@ interface UserContextType {
             photo: string,
             createdAt: string,
             pendingAmount: number
+        }[],
+        count: number
+    };
+    familyData: {
+        status: number,
+        data: {
+            _id: string,
+            member_id: string,
+            type: string,
+            name: string,
+            dob: string,
+            photo: string,
+            memberInfo: string
         }[],
         count: number
     };
@@ -216,6 +233,20 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         count: number
     }>({ status: 0, data: [], count: 0 });
 
+    const [familyData, setFamilyData] = useState<{
+        status: number,
+        data: {
+            _id: string,
+            member_id: string,
+            type: string,
+            name: string,
+            dob: string,
+            photo: string,
+            memberInfo: string
+        }[],
+        count: number
+    }>({ status: 0, data: [], count: 0 });
+
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -268,53 +299,6 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         localStorage.removeItem("token");
         localStorage.removeItem("userType");
         navigate('/');
-    };
-
-    const getAdmins = async (type: string, query: string, skip: number, limit: number) => {
-        setLoading("getAdmins");
-        try {
-            const res = await fetch(`${BASE_URL}/getAdmins`, {
-                method: 'POST',
-                headers: getHeaders(),
-                body: JSON.stringify({ type, query, skip, limit })
-            });
-
-            if (res.status === 401) return logout();
-
-            const data = await res.json();
-            if (data.error) return alert(data.error.message);
-
-            setAdminsData(data);
-        } catch (error) {
-            console.error('Get admins error:', error);
-            alert('Failed to fetch admins. Please try again.');
-        } finally {
-            setLoading("");
-        }
-    };
-
-    const getMembers = async (type: string, query: string, skip: number, limit: number) => {
-        setLoading("getMembers");
-        try {
-            const res = await fetch(`${BASE_URL}/getMembers`, {
-                method: 'POST',
-                headers: getHeaders(),
-                body: JSON.stringify({ type, query, skip, limit })
-            });
-
-            if (res.status === 401) return logout();
-
-            const data = await res.json();
-            if (data.error) return alert(data.error.message);
-
-            setMembersData(data);
-            return data;
-        } catch (error) {
-            console.error('Get members error:', error);
-            alert('Failed to fetch members. Please try again.');
-        } finally {
-            setLoading("");
-        }
     };
 
     const getOrders = async (type: string, query: string, skip: number, limit: number) => {
@@ -438,6 +422,29 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
+    const getAdmins = async (type: string, query: string, skip: number, limit: number) => {
+        setLoading("getAdmins");
+        try {
+            const res = await fetch(`${BASE_URL}/getAdmins`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ type, query, skip, limit })
+            });
+
+            if (res.status === 401) return logout();
+
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+
+            setAdminsData(data);
+        } catch (error) {
+            console.error('Get admins error:', error);
+            alert('Failed to fetch admins. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
     const addAdmin = async (userName: string, type: string, password: string) => {
         setLoading("addAdmin");
         try {
@@ -506,6 +513,28 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         } catch (error) {
             console.error('Delete Admin error:', error);
             alert('Failed to Delete Admin. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
+    const getMembers = async (type: string, query: string, skip: number, limit: number) => {
+        setLoading("getMembers");
+        try {
+            const res = await fetch(`${BASE_URL}/getMembers`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ type, query, skip, limit })
+            });
+            if (res.status === 401) return logout();
+
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            setMembersData(data);
+            return data;
+        } catch (error) {
+            console.error('Get members error:', error);
+            alert('Failed to Get members. Please try again.');
         } finally {
             setLoading("");
         }
@@ -588,7 +617,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
     const deleteMember = async (id: string) => {
         setLoading("deleteMember");
         try {
-            const res = await fetch(`${BASE_URL}/member/${id}`, {
+            const res = await fetch(`${BASE_URL}/members/${id}`, {
                 method: 'DELETE',
                 headers: getHeaders(),
             });
@@ -672,6 +701,113 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
+    const getFamily = async (type: string, query: string, skip: number, limit: number) => {
+        setLoading("getFamily");
+        try {
+            const res = await fetch(`${BASE_URL}/getFamilies`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ type, query, skip, limit })
+            });
+
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            setFamilyData(data)
+            return data;
+        } catch (error) {
+            console.error('Get Family Data error:', error);
+            alert('Failed to Get Family Data. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
+
+    const addFamily = async (member_id: string, type: string, name: string, dob: string, photo: File | null) => {
+        setLoading("addFamily");
+        try {
+            const formData = new FormData();
+            formData.append("member_id", member_id);
+            formData.append("type", type);
+            formData.append("name", name);
+            formData.append("dob", dob);
+            if (photo) {
+                if (photo.size < 102400 || photo.size > 307200) {
+                    alert("Image size must be between 100KB and 300KB.");
+                    return;
+                }
+                formData.append("photo", photo);
+            }
+            const headers = { Authorization: localStorage.getItem("token") || "Bearer null" };
+            const res = await fetch(`${BASE_URL}/families`, {
+                method: 'POST',
+                headers: headers,
+                body: formData
+            });
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            return data.message;
+        } catch (error) {
+            console.error("Add Family Member error:", error);
+            alert("Failed to Add Family Member. Please try again.");
+        } finally {
+            setLoading("");
+        }
+    };
+
+    const updateFamily = async (id: string, type: string, name: string, dob: string, photo: File | null) => {
+        setLoading("updateFamily");
+        try {
+            const formData = new FormData();
+            formData.append('id', id);
+            if (type) formData.append('type', type);
+            if (name) formData.append('name', name);
+            if (dob) formData.append('dob', dob);
+            if (photo) {
+                if (photo.size < 102400 || photo.size > 307200) {
+                    alert("Image size must be between 100KB and 300KB.");
+                    return;
+                }
+                formData.append("photoFile", photo);
+            }
+            const headers = { 'Authorization': localStorage.getItem("token") || "Bearer null" };
+            const res = await fetch(`${BASE_URL}/families`, {
+                method: 'PUT',
+                headers: headers,
+                body: formData
+            });
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            return data.message;
+        } catch (error) {
+            console.error('Update Family error:', error);
+            alert('Failed to Update Family. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    }
+
+    const deleteFamily = async (id: string) => {
+        setLoading("deleteFamily");
+        try {
+            const res = await fetch(`${BASE_URL}/families/${id}`, {
+                method: 'DELETE',
+                headers: getHeaders(),
+            });
+
+            if (res.status === 401) return logout();
+            const data = await res.json();
+            if (data.error) return alert(data.error.message);
+            alert(data.message);
+        } catch (error) {
+            console.error('Delete Member error:', error);
+            alert('Failed to Delete Member. Please try again.');
+        } finally {
+            setLoading("");
+        }
+    };
 
     return (
         <UserContext.Provider value={{
@@ -694,6 +830,10 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             activateMember,
             getSuspendedMembers,
             deActivateMember,
+            getFamily,
+            addFamily,
+            updateFamily,
+            deleteFamily,
             loading,
             adminsData,
             BASE_URL,
@@ -704,7 +844,8 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             ordersData,
             logData,
             itemsData,
-            susData
+            susData,
+            familyData
         }}>
             {children}
         </UserContext.Provider>
