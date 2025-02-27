@@ -6,7 +6,8 @@ import ScanOrder from "./ScanOrder"
 import { Card } from "@/components/ui/card"
 
 function OrdersPage() {
-    const [option, setOption] = useState<any>("table")
+    const type = localStorage.getItem("userType")
+    const [option, setOption] = useState<any>(type === "bookKeeper" ? "table" : "scan")
 
     return (
         <div style={{
@@ -21,9 +22,15 @@ function OrdersPage() {
         }}>
             <h1>Orders Page</h1>
             <Card className="flex gap-5 p-5">
-                <Button variant={option !== 'table' ? "default" : "secondary"} onClick={() => setOption("table")}>Table</Button>
-                <Button variant={option !== 'order' ? "default" : "secondary"} onClick={() => setOption("order")}>Order</Button>
-                <Button variant={option !== 'scan' ? "default" : "secondary"} onClick={() => setOption("scan")}>Scan</Button>
+                {
+                    type === "bookKeeper" ?
+                        <>
+                            <Button variant={option !== 'table' ? "default" : "secondary"} onClick={() => setOption("table")}>Table</Button>
+                            <Button variant={option !== 'order' ? "default" : "secondary"} onClick={() => setOption("order")}>Order</Button>
+                        </>
+                        :
+                        <Button variant={option !== 'scan' ? "default" : "secondary"} onClick={() => setOption("scan")}>Scan</Button>
+                }
             </Card>
             {option === 'table' && <OrdersTable />}
             {option === 'order' && <CreateOrder />}

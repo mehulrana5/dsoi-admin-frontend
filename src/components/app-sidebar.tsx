@@ -45,8 +45,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     "analyst": options,
     "superAdmin": options,
     "customerService": [options[0], options[1], options[2], options[3]],
-    "bookKeeper": [options[0], options[2], ...(options[4]?.submenu?.slice(0, 2) || [])],
-    "barTender": [options[0], ...(options[4]?.submenu?.slice(2, 3) || [])]
+    "bookKeeper": [options[0], options[5]],
+    "barTender": [options[0], options[5]],
+    "inventoryManager": [options[0], options[4]]
   }), [options])
 
   const location = useLocation();
@@ -61,10 +62,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const handleClick = (idx: number) => {
     setActiveItem({ mainIdx: idx, subIdx: null });
-  }
-
-  const handleSubClick = (mainIdx: number, subIdx: number) => {
-    setActiveItem({ mainIdx, subIdx });
   }
 
   return (
@@ -85,20 +82,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   >
                     <Link to={item.url} onClick={() => handleClick(mainIdx)}>{item.title}</Link>
                   </SidebarMenuButton>
-                  {item.submenu && (
-                    <SidebarMenuSub>
-                      {item.submenu.map((subItem, subIdx) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={subIdx === activeItem.subIdx}
-                          >
-                            <Link to={subItem.url} onClick={() => handleSubClick(mainIdx, subIdx)}>{subItem.title}</Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  )}
                 </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>

@@ -201,7 +201,7 @@ export function FamilyTable() {
     }
 
     React.useEffect(() => {
-        if (!context?.membersData.data.length) {
+        if (!context?.familyData.data.length) {
             context?.getFamily("", "", 0, 0)
         }
         setColumnVisibility({

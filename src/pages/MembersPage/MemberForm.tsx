@@ -31,7 +31,6 @@ import { UserContext } from "@/context/UserContextProvider"
 
 
 export default function MemberForm(props: any) {
-
     const baseSchema = z.object({
         userName: z.string().min(1),
         contact: z.string().min(1).min(10).max(10),

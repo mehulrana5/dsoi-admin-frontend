@@ -153,11 +153,6 @@ export function OrdersTable() {
 
     let data: Orders[] = context?.ordersData.data ?? []
 
-    data.forEach(e => {
-        e.itemInfo = e.itemInfo.split("|")[0]
-    });
-
-
     const table = useReactTable({
         data,
         columns,
