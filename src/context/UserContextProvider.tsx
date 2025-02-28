@@ -398,7 +398,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             const data = await res.json();
             if (data.error) return alert(data.error.message);
 
-            setLogData(data.result)
+            setLogData(data)
 
         } catch (error) {
             console.error("get logs error:", error);

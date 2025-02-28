@@ -92,7 +92,14 @@ export function LogsTable() {
             header: "Time Stamp",
             cell: ({ row }) => (
                 <div className="text-center">
-                    {new Date(row.getValue("timeStamp") as string).toLocaleDateString("en-GB")}
+                    {new Date(row.getValue("timeStamp") as string).toLocaleString("en-GB", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: false
+                    }).replace(",", "")}
                 </div>
             ),
             sortingFn: (rowA, rowB, columnId) => {
