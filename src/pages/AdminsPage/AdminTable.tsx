@@ -45,9 +45,11 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { toast } from "sonner"
 
 export function AdminTable() {
     const context = React.useContext(UserContext)
+    const [data, setData] = React.useState<Admin[]>(context?.adminsData.data ?? []);
 
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
@@ -63,9 +65,8 @@ export function AdminTable() {
 
     React.useEffect(() => {
         if (!context?.adminsData.data.length) {
-            context?.getAdmins("", "", 0, 0)
+            context?.getAdmins("", "", 0, 0).then((res) => { setData(res.data) })
         }
-
         setColumnVisibility({
             type: true,
             userName: true,
@@ -74,14 +75,40 @@ export function AdminTable() {
         })
     }, [])
 
-    function handleUpdate(param: any) {
+    React.useEffect(() => { setData(context?.adminsData.data ?? []) }, [context?.adminsData])
+
+    function handleUpdate(data: any, idx: number) {
         setOpen(true)
-        setSelectedAdmin(param)
+        data['idx'] = idx
+        setSelectedAdmin(data)
     }
 
-    function handleDelete(param: any) {
+    function handleDelete(data: any, idx: number) {
         setOpenDelete(true)
-        setSelectedAdmin(param);
+        data['idx'] = idx
+        setSelectedAdmin(data);
+        context?.deleteAdmin(data?._id).then((res) => {
+            if (res?.status === 200) {
+                toast(<div>Admin deleted successfully</div>);
+                context.setAdminsData((prev) => ({
+                    ...prev,
+                    data: prev.data.filter(admin => admin._id !== data?._id)
+                }));
+            }
+        });
+    }
+
+    function handleConDelete() {
+        context?.deleteAdmin(selectedAdmin._id).then((res) => {
+            if (res?.status === 200) {
+                toast(<div>{res.message}</div>);
+                context.setAdminsData((prev) => ({
+                    ...prev,
+                    data: prev.data.filter((_, index) => index !== selectedAdmin.idx),
+                    count: prev.count - 1,
+                }));
+            }
+        })
     }
 
     type Admin = {
@@ -90,8 +117,6 @@ export function AdminTable() {
         type: string,
         createdAt: string
     }
-
-    const data: Admin[] = context?.adminsData.data ?? []
 
     const columns: ColumnDef<Admin>[] = [
         {
@@ -154,8 +179,8 @@ export function AdminTable() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleUpdate(row.original)}>Update</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDelete(row.original)}>Delete</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleUpdate(row.original, row.index)}>Update</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDelete(row.original, row.index)}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 )
@@ -328,7 +353,7 @@ export function AdminTable() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => context?.deleteAdmin(selectedAdmin._id)}>Continue</AlertDialogAction>
+                        <AlertDialogAction onClick={() => handleConDelete()}>Continue</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

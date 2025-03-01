@@ -55,16 +55,28 @@ export default function AdminForm({ props }: any) {
     function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             if (props) {
-                context?.updateAdmin(
-                    props._id,
-                    values.name_4832911734 || props.type,
-                    values.name_4677073376 || props.userName,
-                    values.name_5411977556 || ""
-                ).then((res) => {
-                    if (res) {
-                        toast(<div>{res}</div>);
-                    }
-                })
+                const { _id, type, userName, idx } = props;
+                const updatedType = values.name_4832911734 || type;
+                const updatedUserName = values.name_4677073376 || userName;
+                context?.updateAdmin(_id, updatedType, updatedUserName, values.name_5411977556 || "")
+                    .then((res) => {
+                        if (res) {
+                            toast(<div>{res}</div>);
+                            let data = [...context.adminsData.data];
+                            if (data[idx]) {
+                                data[idx] = {
+                                    ...data[idx],
+                                    type: updatedType,
+                                    userName: updatedUserName,
+                                    _id
+                                };
+                            }
+                            context.setAdminsData({
+                                ...context.adminsData,
+                                data: data ?? []
+                            });
+                        }
+                    });
             }
             else {
                 context?.addAdmin(
@@ -72,10 +84,20 @@ export default function AdminForm({ props }: any) {
                     values.name_4832911734 || "",
                     values.name_5411977556 || ""
                 ).then((res) => {
-                    if (res) {
-                        toast(<div>{res}</div>);
-                    }
-                })
+                    if (!res) return;
+                    toast(<div>{res.message}</div>);
+                    const newAdmin = {
+                        _id: res.data._id,
+                        type: res.data.type,
+                        userName: res.data.userName,
+                        createdAt: res.data.createdAt,
+                    };
+                    context.setAdminsData((prev: any) => ({
+                        ...prev,
+                        data: [...prev.data, newAdmin],
+                        count: prev.count + 1,
+                    }));
+                });
             }
         } catch (error) {
             console.error("Form submission error", error);

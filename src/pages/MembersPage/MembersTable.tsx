@@ -178,7 +178,9 @@ export function MembersTable() {
                     </Button>
                 )
             },
-            cell: ({ row }) => <div className="text-center lowercase">{row.getValue("wallet")}</div>,
+            cell: ({ row }) => <div className="text-center lowercase">
+                {parseFloat(row.getValue("wallet")).toFixed(2)}
+            </div>,
         },
         {
             id: "actions",

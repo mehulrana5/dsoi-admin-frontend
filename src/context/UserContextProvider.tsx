@@ -19,10 +19,10 @@ interface UserContextType {
     updateItem: (id: string, updates: { name?: string; brand?: string; type?: string; qty?: number; price?: number }) => Promise<string>;
     deleteItem: (id: string) => Promise<void>;
 
-    getAdmins: (type: string, query: string, skip: number, limit: number) => Promise<void>;
-    addAdmin: (type: string, userName: string, password: string) => Promise<string>;
+    getAdmins: (type: string, query: string, skip: number, limit: number) => Promise<any>;
+    addAdmin: (type: string, userName: string, password: string) => Promise<any>;
     updateAdmin: (id: string, type: string, userName: string, password: string) => Promise<string>;
-    deleteAdmin: (id: string) => Promise<void>;
+    deleteAdmin: (id: string) => Promise<any>;
 
     getMembers: (type: string, query: string, skip: number, limit: number) => Promise<any>;
     addMember: (userName: string, password: string, contact: string, email: string, wallet: number, photo: File | null) => Promise<string>;
@@ -70,6 +70,16 @@ interface UserContextType {
         }[],
         count: number
     };
+    setAdminsData: React.Dispatch<React.SetStateAction<{
+        status: number;
+        data: {
+            _id: string;
+            userName: string;
+            type: string;
+            createdAt: string;
+        }[];
+        count: number;
+    }>>;
     ordersData: {
         status: number,
         data: {
@@ -507,6 +517,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             if (data.error) return alert(data.error.message);
 
             setAdminsData(data);
+            return data
         } catch (error) {
             console.error('Get admins error:', error);
             alert('Failed to fetch admins. Please try again.');
@@ -527,7 +538,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             if (res.status === 401) return logout();
             const data = await res.json();
             if (data.error) return alert(data.error.message);
-            return data.message;
+            return data;
         } catch (error) {
             console.error('Add Admin error:', error);
             alert('Failed to Add Admin. Please try again.');
@@ -578,8 +589,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             if (res.status === 401) return logout();
             const data = await res.json();
             if (data.error) return alert(data.error.message);
-            alert(data.message);
-            return
+            return data
         } catch (error) {
             console.error('Delete Admin error:', error);
             alert('Failed to Delete Admin. Please try again.');
@@ -911,6 +921,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             deleteFamily,
             loading,
             adminsData,
+            setAdminsData,
             BASE_URL,
             MIN_AMOUNT,
             fontSize,
