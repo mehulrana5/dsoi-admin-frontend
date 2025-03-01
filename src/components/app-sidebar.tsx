@@ -17,7 +17,12 @@ import { Link, useLocation } from "react-router-dom"
 import { useState, useEffect, useMemo } from "react"
 import { UserContext } from "@/context/UserContextProvider"
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  closeSidebar: () => void;
+  isMobileView: boolean;
+}
+
+export function AppSidebar({ closeSidebar, isMobileView, ...props }: AppSidebarProps) {
   const context = React.useContext(UserContext)
 
   interface Option {
@@ -59,6 +64,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const handleClick = (idx: number) => {
     setActiveItem({ mainIdx: idx, subIdx: null });
+    if (isMobileView) {
+      closeSidebar();
+    }
   }
 
   return (
@@ -87,7 +95,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter>
         <SidebarContent>
-          <SidebarMenuButton className={`text-${context?.fontSize}`} onClick={() => context?.logout()}>Logout</SidebarMenuButton>
+          <SidebarMenuButton 
+            className={`text-${context?.fontSize}`} 
+            onClick={() => {
+              context?.logout();
+              if (isMobileView) {
+                closeSidebar();
+              }
+            }}
+          >
+            Logout
+          </SidebarMenuButton>
         </SidebarContent>
       </SidebarFooter>
       <SidebarRail />
