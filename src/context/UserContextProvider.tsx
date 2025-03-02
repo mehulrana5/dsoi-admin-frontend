@@ -25,14 +25,14 @@ interface UserContextType {
     deleteAdmin: (id: string) => Promise<any>;
 
     getMembers: (type: string, query: string, skip: number, limit: number) => Promise<any>;
-    addMember: (userName: string, password: string, contact: string, email: string, wallet: number, photo: File | null) => Promise<string>;
+    addMember: (userName: string, password: string, contact: string, email: string, wallet: number, photo: File | null) => Promise<any>;
     updateMember: (id: string, photo: File | null, action: string, updates: {
         userName?: string;
         contact?: string;
         email?: string;
         password?: string;
-    }) => Promise<string>;
-    deleteMember: (id: string) => Promise<void>;
+    }) => Promise<any>;
+    deleteMember: (id: string) => Promise<any>;
     activateMember: (contact: string) => Promise<void>;
     getSuspendedMembers: (type: string, query: string, skip: number, limit: number) => Promise<{
         status: number,
@@ -106,6 +106,20 @@ interface UserContextType {
         }[],
         count: number
     };
+    setMembersData: React.Dispatch<React.SetStateAction<{
+        status: number;
+        data: {
+            _id: string,
+            userName: string,
+            contact: number,
+            email: string,
+            wallet: number,
+            photo: string,
+            createdAt: string,
+            pendingAmount: number
+        }[];
+        count: number;
+    }>>;
     logData: {
         status: number;
         data: {
@@ -649,7 +663,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             if (res.status === 401) return logout();
             const data = await res.json();
             if (data.error) return alert(data.error.message);
-            return data.message;
+            return data;
         } catch (error) {
             console.error("Add Member error:", error);
             alert("Failed to Add Member. Please try again.");
@@ -685,7 +699,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             if (res.status === 401) return logout();
             const data = await res.json();
             if (data.error) return alert(data.error.message);
-            return data.message;
+            return data;
         } catch (error) {
             console.error('Add Member error:', error);
             alert('Failed to Add Member. Please try again.');
@@ -705,8 +719,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             if (res.status === 401) return logout();
             const data = await res.json();
             if (data.error) return alert(data.error.message);
-            alert(data.message);
-            return
+            return data
         } catch (error) {
             console.error('Delete Member error:', error);
             alert('Failed to Delete Member. Please try again.');
@@ -889,8 +902,6 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
         }
     };
 
-
-
     return (
         <UserContext.Provider value={{
             login,
@@ -926,6 +937,7 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
             MIN_AMOUNT,
             fontSize,
             membersData,
+            setMembersData,
             screenSize,
             ordersData,
             logData,

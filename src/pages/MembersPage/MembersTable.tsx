@@ -40,6 +40,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
 import { Label } from "@/components/ui/label"
 import Fuse from "fuse.js";
+import { toast } from "sonner"
 
 export function MembersTable() {
 
@@ -49,8 +50,8 @@ export function MembersTable() {
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
     const [pagination, setPagination] = React.useState<PaginationState>({
-        pageIndex: 0, // Start from the first page
-        pageSize: (context?.screenSize ?? 0) > 768 ? 8 : 6   // Default rows per page
+        pageIndex: 0,
+        pageSize: (context?.screenSize ?? 0) > 768 ? 8 : 6
     });
 
     const [open, setOpen] = React.useState(false)
@@ -79,17 +80,49 @@ export function MembersTable() {
         })
     }, [])
 
-    function handleUpdate(param: any) {
+    React.useEffect(() => {
+        setData(context?.membersData.data ?? [])
+    }, [context?.membersData])
+
+    React.useEffect(() => {
+        if (!queryText) {
+            setSearchResults(context?.membersData.data);
+            return;
+        }
+        const fuse = new Fuse(context?.membersData?.data ?? [], {
+            keys: ["userName", "contact", "email"],
+            threshold: 0.5,
+        });
+        setSearchResults(fuse.search(queryText).map((result) => result.item));
+    }, [queryText])
+
+    React.useEffect(() => {
+        setData(searchResults)
+    }, [searchResults])
+
+    function handleUpdate(param: any, idx: number) {
         setOpen(true)
+        param['idx'] = idx
         setSelectedMember(param)
     }
 
-    function handleDelete(param: any) {
+    function handleDelete(param: any, idx: number) {
         setOpenDelete(true)
+        param['idx'] = idx
         setSelectedMember(param);
     }
 
-    // let data: Member[] = context?.membersData.data ?? []
+    function handleConDelete() {
+        context?.deleteMember(selectedMember._id).then((res) => {
+            toast(<div>{res.message}</div>);
+            if (res?.status === 200) {
+                context.setMembersData((prev) => ({
+                    ...prev,
+                    data: prev.data.filter((_, index) => index !== selectedMember.idx),
+                }));
+            }
+        });
+    }
 
     type Member = {
         _id: string
@@ -196,34 +229,14 @@ export function MembersTable() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleUpdate(row.original)}>Update</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDelete(row.original)}>Delete</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleUpdate(row.original, row.index)}>Update</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDelete(row.original, row.index)}>Delete</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
                 )
             },
         },
     ]
-
-    React.useEffect(() => {
-        setData(context?.membersData.data ?? [])
-    }, [])
-
-    React.useEffect(() => {
-        if (!queryText) {
-            setSearchResults(context?.membersData.data);
-            return;
-        }
-        const fuse = new Fuse(context?.membersData?.data ?? [], {
-            keys: ["userName", "contact", "email"],
-            threshold: 0.5,
-        });
-        setSearchResults(fuse.search(queryText).map((result) => result.item));
-    }, [queryText, context])
-
-    React.useEffect(() => {
-        setData(searchResults)
-    }, [searchResults])
 
     const table = useReactTable({
         data,
@@ -440,7 +453,7 @@ export function MembersTable() {
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => context?.deleteMember(selectedMember._id)}>Continue</AlertDialogAction>
+                        <AlertDialogAction onClick={() => handleConDelete()}>Continue</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

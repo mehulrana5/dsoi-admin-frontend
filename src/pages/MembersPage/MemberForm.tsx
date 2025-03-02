@@ -59,8 +59,17 @@ export default function MemberForm(props: any) {
                         password: values.password || "",
                     }
                 ).then((res) => {
-                    if (res) {
-                        toast(<div>{res}</div>);
+                    toast(<div>{res.message}</div>);
+                    if (res?.status === 200) {
+                        const updatedMember = { ...res.data };
+                        delete updatedMember.__v;
+                        delete updatedMember.deviceId;
+                        context.setMembersData((prev) => ({
+                            ...prev,
+                            data: prev.data.map((member, index) =>
+                                index === props.props.idx ? updatedMember : member
+                            ),
+                        }));
                     }
                 })
             }
@@ -74,7 +83,14 @@ export default function MemberForm(props: any) {
                     values.photo || null,
                 ).then((res) => {
                     if (res) {
-                        toast(<div>{res}</div>);
+                        toast(<div>{res.message}</div>);
+                        if (res?.status === 200) {
+                            context.setMembersData((prev: any) => ({
+                                ...prev,
+                                data: [...prev.data, res.data],
+                                count: prev.count + 1,
+                            }));
+                        }
                     }
                 })
             }
