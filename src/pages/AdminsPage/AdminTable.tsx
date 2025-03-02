@@ -1,3 +1,4 @@
+
 "use client"
 import * as React from "react"
 import {
@@ -144,6 +145,37 @@ export function AdminTable() {
             id: "actions",
             enableHiding: false,
             cell: ({ row }) => {
+                const admin = row.original
+                const loggedInUserType = localStorage.getItem("userType")
+
+               if(loggedInUserType === "analyst") {
+                    return null 
+               }
+
+                if (loggedInUserType === "customerService" && admin.type === "superAdmin") {
+                    return null 
+                }
+
+                
+                if (loggedInUserType === "superAdmin") {
+                    return (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                    <span className="sr-only">Open menu</span>
+                                    <MoreHorizontal />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuItem onClick={() => handleUpdate(admin)}>Update</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDelete(admin)}>Delete</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )
+                }
+
+                // For other cases, provide action buttons for update/delete (e.g., if not a customerService user)
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>

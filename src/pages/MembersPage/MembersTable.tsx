@@ -133,6 +133,7 @@ export function MembersTable() {
                     <Button
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                        className="text-center"
                     >
                         Pending
                         <ArrowUpDown />
@@ -148,6 +149,7 @@ export function MembersTable() {
                     <Button
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                        className="text-center"
                     >
                         Created At
                         <ArrowUpDown />
@@ -172,6 +174,7 @@ export function MembersTable() {
                     <Button
                         variant="ghost"
                         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                        className="text-center"
                     >
                         Wallet
                         <ArrowUpDown />
@@ -180,27 +183,42 @@ export function MembersTable() {
             },
             cell: ({ row }) => <div className="text-center lowercase">{row.getValue("wallet")}</div>,
         },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => {
-                return (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleUpdate(row.original)}>Update</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDelete(row.original)}>Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                )
+        ...(localStorage.getItem("userType") !== "analyst" ? [
+            {
+                id: "actions",
+                enableHiding: false,
+                header: "Actions",
+                
+                cell: ({ row }: { row: any }) => {
+                    const loggedInUserType = localStorage.getItem("userType");
+
+                    if (loggedInUserType === "analyst") {
+                        return null;
+                    }
+
+                    return (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                    <span className="sr-only">Open menu</span>
+                                    <MoreHorizontal />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                className="text-center"
+                                <DropdownMenuItem onClick={() => handleUpdate(row.original)}>
+                                    Update
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDelete(row.original)}>
+                                    Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    );
+                },
             },
-        },
+        ] : []),
     ]
 
     React.useEffect(() => {
@@ -314,13 +332,14 @@ export function MembersTable() {
                         <Button onClick={() => {
                             context?.getSuspendedMembers("", "", 0, 0).then((res) => setData(res.data))
                             setFlag(false)
-                        }}>Suspended</Button>
+                        }}>View Suspended Members</Button>
                         :
                         <Button onClick={() => {
                             context?.getMembers("", "", 0, 0).then((res) => setData(res.data))
                             setFlag(true)
-                        }}>Members</Button>
+                        }}>View Active Members</Button>
                 }
+
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto">

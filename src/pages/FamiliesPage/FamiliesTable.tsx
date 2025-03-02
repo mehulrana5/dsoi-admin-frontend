@@ -72,7 +72,7 @@ export function FamilyTable() {
     const columns: ColumnDef<Family>[] = [
         {
             id: "photo",
-            cell: ({ row }) => {
+            cell: ({ row }: { row: any }) => {
                 return (
                     <img src={row.original.photo} alt="User photo" className="w-[100px] h-[100px] rounded-full object-center sm:w-[150px] sm:h-[150px] sm:rounded-none" />
                 )
@@ -146,27 +146,42 @@ export function FamilyTable() {
                 return dateA - dateB;
             }
         },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => {
-                return (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleUpdate(row.original)}>Update</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDelete(row.original)}>Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                )
+        ...(localStorage.getItem("userType") !== "analyst" ? [
+            {
+                id: "actions",
+                enableHiding: false,
+                header: "Actions",
+                cell: ({ row }: { row: any }) => {  
+                    const loggedInUserType = localStorage.getItem("userType");
+        
+                    const isAnalyst = loggedInUserType === "analyst";
+        
+                    if (isAnalyst) {
+                        return null; 
+                    }
+        
+                    return (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                    <span className="sr-only">Open menu</span>
+                                    <MoreHorizontal />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuItem onClick={() => handleUpdate(row.original)}>
+                                    Update
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDelete(row.original)}>
+                                    Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    );
+                },
             },
-        },
+        ] : [])     
     ]
 
     const table = useReactTable({
@@ -309,7 +324,7 @@ export function FamilyTable() {
                                 <TableRow
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
-                                >
+                                >    
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell className="text-center" key={cell.id}>
                                             {flexRender(
