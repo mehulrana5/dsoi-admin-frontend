@@ -11,7 +11,7 @@ interface UserContextType {
     getLogs: (type: string, query: string, skip: number, limit: number) => Promise<void>;
 
     getOrders: (type: string, query: string, skip: number, limit: number) => Promise<void>;
-    createOrder: (member_id: string, item_id: string, wallet: number, price: number) => Promise<void>;
+    createOrder: (member_id: string, item_id: string, wallet: number, price: number) => Promise<string[]>;
     updateOrder: (order_id: string, operation: string, query: { status: string }) => Promise<void>;
 
     getItems: (type: string, query: string, skip: number, limit: number) => Promise<void>;
@@ -344,31 +344,43 @@ const UserContextProvider: FC<UserContextProviderProps> = ({ children }) => {
 
     const createOrder = async (member_id: string, item_id: string, wallet: number, price: number) => {
         setLoading("createOrder");
-
+        let alertMessages: string[] = []; 
+    
         if (wallet - price < MIN_AMOUNT) {
-            return alert(`Cannot deduct: Wallet balance would fall below ${MIN_AMOUNT}`);
+            alertMessages.push(`Cannot deduct: Wallet balance would fall below ${MIN_AMOUNT}`);
+            return alertMessages; 
         }
-
+    
         try {
             const res = await fetch(`${BASE_URL}/orders`, {
                 method: "POST",
                 headers: getHeaders(),
                 body: JSON.stringify({ member_id, item_id })
             });
-
-            if (res.status === 401) return logout();
-
+    
+            if (res.status === 401) {
+                logout();
+                alertMessages.push("Session expired, please log in again.");
+                return alertMessages; 
+            }
+    
             const data = await res.json();
-            if (data.error) return alert(data.error.message);
-
-            alert(data.message);
+            if (data.error) {
+                alertMessages.push(data.error.message);
+                return alertMessages; 
+            }
+    
+            alertMessages.push(data.message);
+            return alertMessages;
         } catch (error) {
             console.error("Create orders error:", error);
-            alert("Failed to create orders. Please try again.");
+            alertMessages.push("Failed to create orders. Please try again.");
+            return alertMessages; 
         } finally {
             setLoading("");
         }
     };
+    
 
     const updateOrder = async (order_id: string, operation: string, query: { status: string }) => {
         setLoading("createOrder");

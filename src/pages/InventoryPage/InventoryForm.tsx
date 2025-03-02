@@ -94,6 +94,7 @@ export default function MyForm(props: any) {
                                     placeholder=""
                                     defaultValue={props?.props?.name}
                                     type="text"
+                                    autoComplete="off"  
                                     {...field} />
                             </FormControl>
 
@@ -113,6 +114,7 @@ export default function MyForm(props: any) {
                                     placeholder=""
                                     defaultValue={props?.props?.brand}
                                     type="text"
+                                    autoComplete="off"  
                                     {...field} />
                             </FormControl>
 
@@ -132,6 +134,7 @@ export default function MyForm(props: any) {
                                     placeholder=""
                                     defaultValue={props?.props?.type}
                                     type="text"
+                                    autoComplete="off"  
                                     {...field} />
                             </FormControl>
 
@@ -155,6 +158,7 @@ export default function MyForm(props: any) {
                                             placeholder=""
                                             defaultValue={props?.props?.qty}
                                             type="number"
+                                            autoComplete="off"  
                                             {...field} />
                                     </FormControl>
 
@@ -177,6 +181,7 @@ export default function MyForm(props: any) {
                                             placeholder=""
                                             defaultValue={props?.props?.price}
                                             type="number"
+                                            autoComplete="off"  
                                             {...field} />
                                     </FormControl>
 

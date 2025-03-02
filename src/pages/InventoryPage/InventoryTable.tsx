@@ -137,27 +137,42 @@ export function InventoryTable() {
             },
             cell: ({ row }) => <div className="text-center lowercase">{row.getValue("price")}</div>,
         },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => {
-                return (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleUpdate(row.original)}>Update</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDelete(row.original)}>Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                )
+        ...(localStorage.getItem("userType") !== "analyst" ? [
+            {
+                id: "actions",
+                enableHiding: false,
+                header: "", // Remove the heading here
+                cell: ({ row }: { row: any }) => {  
+                    const loggedInUserType = localStorage.getItem("userType");
+
+                    const isAnalyst = loggedInUserType === "analyst";
+
+                    if (isAnalyst) {
+                        return null; 
+                    }
+
+                    return (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0">
+                                    <span className="sr-only">Open menu</span>
+                                    <MoreHorizontal />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                <DropdownMenuItem onClick={() => handleUpdate(row.original)}>
+                                    Update
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleDelete(row.original)}>
+                                    Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    );
+                },
             },
-        },
+        ] : [])  
     ]
 
     const table = useReactTable({
